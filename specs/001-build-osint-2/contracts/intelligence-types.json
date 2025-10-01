@@ -1,0 +1,74 @@
+[
+  {
+    "id": "person-investigation",
+    "name": "Person Investigation",
+    "description": "Deep-dive into an individual's background, connections, and online presence",
+    "discoveryAreas": ["social-media", "employment-history", "education", "criminal-records", "financial-records", "family-connections"],
+    "promptTemplate": "BASE_TEMPLATE",
+    "reportStructureOverrides": {}
+  },
+  {
+    "id": "company-research",
+    "name": "Company Research",
+    "description": "Analyze corporate structure, financial health, key personnel, and reputation",
+    "discoveryAreas": ["corporate-structure", "financial-health", "key-personnel", "reputation", "regulatory-compliance", "market-position"],
+    "promptTemplate": "BASE_TEMPLATE",
+    "reportStructureOverrides": {
+      "additionalSections": ["Competitive Landscape"]
+    }
+  },
+  {
+    "id": "location-analysis",
+    "name": "Location Analysis",
+    "description": "Investigate geographic area, demographics, infrastructure, and activity patterns",
+    "discoveryAreas": ["demographics", "infrastructure", "economic-indicators", "safety-crime", "points-of-interest", "historical-events"],
+    "promptTemplate": "BASE_TEMPLATE",
+    "reportStructureOverrides": {}
+  },
+  {
+    "id": "threat-assessment",
+    "name": "Threat Assessment",
+    "description": "Evaluate security risks, vulnerabilities, and potential threat actors",
+    "discoveryAreas": ["threat-actors", "attack-vectors", "vulnerabilities", "historical-incidents", "indicators-of-compromise"],
+    "promptTemplate": "BASE_TEMPLATE",
+    "reportStructureOverrides": {
+      "additionalSections": ["Mitigation Strategies", "Likelihood Assessment"]
+    }
+  },
+  {
+    "id": "technology-profiling",
+    "name": "Technology Profiling",
+    "description": "Assess technology stack, digital footprint, and technical capabilities",
+    "discoveryAreas": ["tech-stack", "digital-infrastructure", "code-repositories", "security-posture", "patents-publications"],
+    "promptTemplate": "BASE_TEMPLATE",
+    "reportStructureOverrides": {}
+  },
+  {
+    "id": "market-intelligence",
+    "name": "Market Intelligence",
+    "description": "Gather competitive insights, market trends, and industry analysis",
+    "discoveryAreas": ["market-trends", "competitor-analysis", "customer-sentiment", "pricing-strategies", "regulatory-landscape"],
+    "promptTemplate": "BASE_TEMPLATE",
+    "reportStructureOverrides": {
+      "additionalSections": ["Market Opportunities", "Threats"]
+    }
+  },
+  {
+    "id": "reputation-analysis",
+    "name": "Reputation Analysis",
+    "description": "Evaluate public perception, media coverage, and stakeholder sentiment",
+    "discoveryAreas": ["media-coverage", "social-sentiment", "reviews-ratings", "controversies", "brand-associations"],
+    "promptTemplate": "BASE_TEMPLATE",
+    "reportStructureOverrides": {}
+  },
+  {
+    "id": "event-investigation",
+    "name": "Event Investigation",
+    "description": "Reconstruct timeline, participants, and context of specific events",
+    "discoveryAreas": ["timeline-reconstruction", "participants", "location-context", "media-reports", "witness-accounts"],
+    "promptTemplate": "BASE_TEMPLATE",
+    "reportStructureOverrides": {
+      "additionalSections": ["Chronological Timeline"]
+    }
+  }
+]

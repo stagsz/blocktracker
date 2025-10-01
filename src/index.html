@@ -1,0 +1,2403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OSINT 2.1 Intelligence Prompt Generator</title>
+
+  <!-- STYLES: T012-T013 -->
+  <style>
+    /* T012-T013: Professional CSS Styling */
+
+    /* Reset and base */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      line-height: 1.6;
+      color: #003366;
+      background-color: #F5F5F5;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: white;
+      padding: 40px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      font-size: 32px;
+      font-weight: bold;
+      color: #003366;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+
+    .subtitle {
+      font-size: 16px;
+      color: #666;
+      margin-bottom: 40px;
+      text-align: center;
+    }
+
+    /* Features section */
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+      margin-bottom: 40px;
+    }
+
+    .feature-item {
+      text-align: center;
+      padding: 24px;
+      background: #F5F5F5;
+      border-radius: 8px;
+      border: 1px solid #E5E5E5;
+    }
+
+    .feature-item strong {
+      display: block;
+      font-size: 18px;
+      font-weight: 600;
+      color: #003366;
+      margin-bottom: 8px;
+    }
+
+    .feature-item p {
+      font-size: 14px;
+      color: #666;
+      margin: 0;
+      line-height: 1.5;
+    }
+
+    /* Button styles */
+    .btn {
+      padding: 12px 24px;
+      border-radius: 4px;
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 500;
+      min-height: 44px;
+      min-width: 44px;
+      transition: background-color 0.2s, transform 0.1s;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    .btn:focus {
+      outline: 2px solid #0066CC;
+      outline-offset: 4px;
+    }
+
+    .btn-primary {
+      background-color: #003366;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background-color: #004488;
+    }
+
+    .btn-primary:disabled {
+      background-color: #CCCCCC;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-secondary {
+      background-color: #F5F5F5;
+      color: #003366;
+      border: 1px solid #CCCCCC;
+    }
+
+    .btn-secondary:hover {
+      background-color: #E5E5E5;
+    }
+
+    .btn-danger {
+      background-color: #dc3545;
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background-color: #c82333;
+    }
+
+    .main-actions {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin-bottom: 40px;
+    }
+
+    /* OSINT Explanation */
+    .osint-explanation {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 32px;
+      background: #F9FAFB;
+      border-radius: 8px;
+      border-left: 4px solid #003366;
+    }
+
+    .osint-explanation h3 {
+      font-size: 20px;
+      font-weight: 600;
+      color: #003366;
+      margin-bottom: 16px;
+      margin-top: 0;
+    }
+
+    .osint-explanation p {
+      font-size: 15px;
+      line-height: 1.7;
+      color: #4B5563;
+      margin-bottom: 16px;
+    }
+
+    .osint-explanation p:last-child {
+      margin-bottom: 0;
+    }
+
+    /* Modal styles - Full-Screen Overlay */
+    dialog {
+      border: none;
+      border-radius: 0;
+      padding: 0;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      max-width: 100vw;
+      max-height: 100vh;
+      margin: 0;
+      background-color: #F5F5F5;
+      overflow-y: auto;
+      z-index: 1000;
+      opacity: 0;
+      transition: opacity 0.2s ease-out;
+    }
+
+    dialog[open] {
+      opacity: 1;
+    }
+
+    dialog::backdrop {
+      background-color: rgba(0, 0, 0, 0.8);
+    }
+
+    /* Content container - centered with max-width */
+    dialog > div {
+      max-width: 900px;
+      margin: 0 auto;
+      background: white;
+      min-height: 100vh;
+      box-shadow: 0 0 40px rgba(0, 0, 0, 0.1);
+    }
+
+    .modal-header {
+      padding: 24px;
+      border-bottom: 1px solid #E5E5E5;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-header h2 {
+      font-size: 24px;
+      font-weight: bold;
+      color: #003366;
+      margin: 0;
+    }
+
+    .modal-header .modal-close {
+      background: none;
+      border: none;
+      font-size: 28px;
+      color: #666;
+      cursor: pointer;
+      padding: 0;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 4px;
+    }
+
+    .modal-header .modal-close:hover {
+      background-color: #F5F5F5;
+      color: #003366;
+    }
+
+    .modal-header .modal-close:focus {
+      outline: 2px solid #0066CC;
+      outline-offset: 2px;
+    }
+
+    .modal-content {
+      padding: 24px;
+    }
+
+    .modal-footer {
+      padding: 24px;
+      border-top: 1px solid #E5E5E5;
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+    }
+
+    /* Intelligence type cards */
+    #intelligence-types-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      margin-top: 20px;
+    }
+
+    .intel-card {
+      padding: 20px;
+      border: 2px solid #E5E5E5;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: white;
+    }
+
+    .intel-card:hover {
+      border-color: #0066CC;
+      box-shadow: 0 4px 12px rgba(0, 102, 204, 0.1);
+    }
+
+    .intel-card:focus {
+      outline: 2px solid #0066CC;
+      outline-offset: 4px;
+    }
+
+    .intel-card.selected {
+      border-color: #0066CC;
+      background-color: #F0F8FF;
+    }
+
+    .intel-card h3 {
+      font-size: 18px;
+      font-weight: 600;
+      color: #003366;
+      margin-bottom: 8px;
+    }
+
+    .intel-card p {
+      font-size: 14px;
+      color: #666;
+      margin: 0;
+    }
+
+    /* Form styles */
+    .form-section {
+      margin-bottom: 24px;
+    }
+
+    .form-section h3 {
+      font-size: 18px;
+      font-weight: 600;
+      color: #003366;
+      margin-bottom: 12px;
+    }
+
+    label {
+      display: block;
+      font-size: 14px;
+      font-weight: 500;
+      color: #003366;
+      margin-bottom: 6px;
+    }
+
+    input[type="text"],
+    input[type="date"],
+    select,
+    textarea {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid #CCCCCC;
+      border-radius: 4px;
+      font-size: 14px;
+      font-family: inherit;
+      min-height: 44px;
+    }
+
+    input[type="text"]:focus,
+    input[type="date"]:focus,
+    select:focus,
+    textarea:focus {
+      outline: 2px solid #0066CC;
+      outline-offset: 2px;
+      border-color: #0066CC;
+    }
+
+    textarea {
+      resize: vertical;
+      font-family: 'Courier New', monospace;
+      line-height: 1.5;
+    }
+
+    /* Discovery areas */
+    .checkbox-list {
+      max-height: 300px;
+      overflow-y: auto;
+      border: 1px solid #E5E5E5;
+      border-radius: 4px;
+      padding: 12px;
+    }
+
+    .discovery-area-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      margin-bottom: 12px;
+      padding: 8px;
+      border-radius: 4px;
+    }
+
+    .discovery-area-item:hover {
+      background-color: #F5F5F5;
+    }
+
+    .discovery-area-item.custom {
+      background-color: #FFF9E6;
+    }
+
+    .discovery-area-item input[type="checkbox"] {
+      margin-top: 2px;
+      width: 20px;
+      height: 20px;
+      min-width: 20px;
+      cursor: pointer;
+    }
+
+    .discovery-area-item label {
+      flex: 1;
+      margin: 0;
+      cursor: pointer;
+      font-weight: 500;
+    }
+
+    .discovery-area-item small {
+      display: block;
+      color: #666;
+      font-size: 12px;
+      margin-top: 4px;
+      flex: 1 0 100%;
+      margin-left: 28px;
+    }
+
+    .custom-area-input {
+      margin-top: 16px;
+    }
+
+    .input-group {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    .input-group input {
+      flex: 1;
+    }
+
+    #custom-date-range {
+      margin-top: 12px;
+      padding: 12px;
+      background-color: #F5F5F5;
+      border-radius: 4px;
+    }
+
+    #custom-date-range label {
+      margin-top: 12px;
+    }
+
+    #custom-date-range label:first-child {
+      margin-top: 0;
+    }
+
+    /* Prompt output */
+    .prompt-output {
+      margin-bottom: 16px;
+    }
+
+    .prompt-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 8px;
+      font-size: 14px;
+      color: #666;
+    }
+
+    .warning {
+      color: #FF6600;
+      font-weight: 500;
+    }
+
+    /* Template list */
+    #template-list {
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    .template-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px;
+      border: 1px solid #E5E5E5;
+      border-radius: 4px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .template-item:hover {
+      border-color: #0066CC;
+      background-color: #F5F5F5;
+    }
+
+    .template-info {
+      flex: 1;
+    }
+
+    .template-info strong {
+      display: block;
+      font-size: 16px;
+      color: #003366;
+      margin-bottom: 4px;
+    }
+
+    .template-info small {
+      display: block;
+      font-size: 14px;
+      color: #666;
+    }
+
+    .btn-delete {
+      background: none;
+      border: none;
+      color: #dc3545;
+      font-size: 24px;
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 4px;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn-delete:hover {
+      background-color: #ffebee;
+    }
+
+    .btn-delete:focus {
+      outline: 2px solid #dc3545;
+      outline-offset: 2px;
+    }
+
+    /* Notification area */
+    .notification-area {
+      display: none;
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background-color: #003366;
+      color: white;
+      padding: 16px 24px;
+      border-radius: 4px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      z-index: 2000;
+      max-width: 400px;
+      animation: slideIn 0.3s ease-out;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    @keyframes slideIn {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    /* Responsive layout */
+    @media (min-width: 768px) {
+      #intelligence-types-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    @media (min-width: 1024px) {
+      #intelligence-types-grid {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+
+    @media (max-width: 767px) {
+      .container {
+        padding: 20px;
+      }
+
+      h1 {
+        font-size: 24px;
+      }
+
+      .main-actions {
+        flex-direction: column;
+      }
+
+      dialog > div {
+        max-width: 100%;
+      }
+
+      .modal-header,
+      .modal-content,
+      .modal-footer {
+        padding: 16px;
+      }
+
+      .intel-card {
+        padding: 16px;
+      }
+
+      .notification-area {
+        top: 10px;
+        right: 10px;
+        left: 10px;
+        max-width: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- MAIN CONTAINER: T003 -->
+  <main>
+    <div class="container">
+      <h1>OSINT Intelligence Prompt Generator</h1>
+      <p class="subtitle">Professional OSINT analysis made simple - generate AI-ready intelligence prompts in under 60 seconds</p>
+
+      <div class="features">
+        <div class="feature-item">
+          <strong>8 Intelligence Types</strong>
+          <p>Person, Company, Location, Threat, Technology, Market, Reputation & Event investigations</p>
+        </div>
+        <div class="feature-item">
+          <strong>4-Phase OSINT Methodology</strong>
+          <p>Discovery → Signals → Insights → Receipts for professional intelligence reports</p>
+        </div>
+        <div class="feature-item">
+          <strong>Reusable Templates</strong>
+          <p>Save investigation configurations and load them instantly for recurring analysis</p>
+        </div>
+      </div>
+
+      <div class="main-actions">
+        <button id="new-prompt-btn" class="btn btn-primary">New Prompt</button>
+        <button id="load-template-btn" class="btn btn-secondary">Load Template</button>
+      </div>
+
+      <div class="osint-explanation">
+        <h3>What is OSINT?</h3>
+        <p>OSINT stands for Open Source Intelligence, the practice of collecting and analyzing publicly available information from open sources to produce actionable intelligence. Open sources include social media platforms, search engines, public records, news media, websites, government data, academic publications, and geospatial information. This information is legally accessible without requiring hacking, breaking in, or special authorization.</p>
+
+        <p>OSINT is used across corporate competitive intelligence, security threat assessment, investigative journalism, and research. Unlike other intelligence types such as HUMINT (human sources) or SIGINT (intercepted communications), OSINT focuses exclusively on publicly available information that can be legally and ethically accessed.</p>
+
+        <p>This tool generates AI prompts that help analysts systematically conduct OSINT investigations using a proven 4-phase methodology: Discovery, Signals, Insights, and Receipts. Each generated prompt guides the analysis process from initial target identification through evidence documentation, ensuring thorough and professional intelligence reports.</p>
+      </div>
+
+      <!-- ARIA live region for notifications -->
+      <div id="notification-area" role="status" aria-live="polite" aria-atomic="true" class="notification-area"></div>
+    </div>
+  </main>
+
+  <!-- MODALS: T003 -->
+  <!-- Intelligence Setup Modal (Step 1) -->
+  <dialog id="intelligence-setup-modal" aria-labelledby="intelligence-setup-title">
+    <div>
+      <div class="modal-header">
+        <h2 id="intelligence-setup-title">Step 1: Intelligence Setup</h2>
+        <button class="modal-close" aria-label="Close modal" title="Press ESC to close">&times;</button>
+      </div>
+      <div class="modal-content">
+        <p>Select an intelligence analysis type:</p>
+        <div id="intelligence-types-grid" role="radiogroup" aria-label="Intelligence Types">
+          <!-- Intelligence type cards will be populated by JavaScript in T014 -->
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="intelligence-next-btn" class="btn btn-primary" disabled>Next</button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Discovery Configuration Modal (Step 2) -->
+  <dialog id="discovery-config-modal" aria-labelledby="discovery-config-title">
+    <div>
+      <div class="modal-header">
+        <h2 id="discovery-config-title">Step 2: Discovery Configuration</h2>
+        <button class="modal-close" aria-label="Close modal" title="Press ESC to close">&times;</button>
+      </div>
+      <div class="modal-content">
+        <section class="form-section">
+          <h3>Investigation Target</h3>
+          <label for="target-name-input">Target Name:</label>
+          <input type="text" id="target-name-input" placeholder="e.g., John Smith, Acme Corp, New York City" maxlength="500" aria-required="true">
+        </section>
+
+        <section class="form-section">
+          <h3>Timeframe</h3>
+          <label for="timeframe-select">Investigation Period:</label>
+          <select id="timeframe-select">
+            <option value="all">All time</option>
+            <option value="7d">Last 7 days</option>
+            <option value="30d">Last 30 days</option>
+            <option value="180d" selected>Last 6 months</option>
+            <option value="365d">Last 1 year</option>
+            <option value="custom">Custom Range</option>
+          </select>
+
+          <div id="custom-date-range" style="display: none;">
+            <label for="date-start">Start Date:</label>
+            <input type="date" id="date-start">
+            <label for="date-end">End Date:</label>
+            <input type="date" id="date-end">
+          </div>
+        </section>
+
+        <section class="form-section">
+          <h3>Discovery Areas</h3>
+          <div id="discovery-areas-list" class="checkbox-list">
+            <!-- Discovery area checkboxes will be populated by JavaScript in T015 -->
+          </div>
+
+          <div class="custom-area-input">
+            <label for="custom-area-input">Add Custom Discovery Area:</label>
+            <div class="input-group">
+              <input type="text" id="custom-area-input" placeholder="e.g., Known Aliases" maxlength="100">
+              <button id="add-custom-area-btn" class="btn btn-secondary">Add</button>
+            </div>
+            <small id="custom-area-count">0 / 10 custom areas</small>
+          </div>
+        </section>
+      </div>
+      <div class="modal-footer">
+        <button id="discovery-back-btn" class="btn btn-secondary">Back</button>
+        <button id="generate-prompt-btn" class="btn btn-primary">Generate Prompt</button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Prompt Generated Modal (Step 3) -->
+  <dialog id="prompt-generated-modal" aria-labelledby="prompt-generated-title">
+    <div>
+      <div class="modal-header">
+        <h2 id="prompt-generated-title">Step 3: Prompt Generated</h2>
+        <button class="modal-close" aria-label="Close modal" title="Press ESC to close">&times;</button>
+      </div>
+      <div class="modal-content">
+        <div class="prompt-output">
+          <textarea id="generated-prompt-text" readonly rows="20" aria-label="Generated OSINT prompt"></textarea>
+
+          <div class="prompt-meta">
+            <span id="character-count" aria-live="polite">0 / 8,000 characters</span>
+            <span id="truncation-warning" style="display: none;" class="warning">
+              ⚠️ Prompt optimized to fit 8000 character limit
+            </span>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="copy-clipboard-btn" class="btn btn-secondary">Copy to Clipboard</button>
+        <button id="save-template-btn" class="btn btn-secondary">Save Template</button>
+        <button class="modal-close btn btn-primary">Close</button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Template List Modal -->
+  <dialog id="template-list-modal" aria-labelledby="template-list-title">
+    <div>
+      <div class="modal-header">
+        <h2 id="template-list-title">Load Template</h2>
+        <button class="modal-close" aria-label="Close modal" title="Press ESC to close">&times;</button>
+      </div>
+      <div class="modal-content">
+        <div id="template-list">
+          <!-- Template list will be populated by JavaScript in T023 -->
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="modal-close btn btn-secondary">Cancel</button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Save Template Modal -->
+  <dialog id="save-template-modal" aria-labelledby="save-template-title">
+    <div>
+      <div class="modal-header">
+        <h2 id="save-template-title">Save Template</h2>
+        <button class="modal-close" aria-label="Close modal" title="Press ESC to close">&times;</button>
+      </div>
+      <div class="modal-content">
+        <label for="template-name-input">Template Name:</label>
+        <input type="text" id="template-name-input" placeholder="e.g., John Smith Investigation" maxlength="100" aria-required="true">
+      </div>
+      <div class="modal-footer">
+        <button class="modal-close btn btn-secondary">Cancel</button>
+        <button id="confirm-save-template-btn" class="btn btn-primary">Save</button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Delete Confirmation Modal -->
+  <dialog id="delete-confirm-modal" aria-labelledby="delete-confirm-title">
+    <div>
+      <div class="modal-header">
+        <h2 id="delete-confirm-title">Confirm Deletion</h2>
+        <button class="modal-close" aria-label="Close modal" title="Press ESC to close">&times;</button>
+      </div>
+      <div class="modal-content">
+        <p id="delete-confirm-message">Delete this template? This cannot be undone.</p>
+      </div>
+      <div class="modal-footer">
+        <button class="modal-close btn btn-secondary">Cancel</button>
+        <button id="confirm-delete-btn" class="btn btn-danger">Confirm</button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- CONTRACT DATA: T002 -->
+  <script>
+    // Intelligence Types Contract
+    const INTELLIGENCE_TYPES = [
+  {
+    "id": "person-investigation",
+    "name": "Person Investigation",
+    "description": "Deep-dive into an individual's background, connections, and online presence",
+    "discoveryAreas": ["social-media", "employment-history", "education", "criminal-records", "financial-records", "family-connections"],
+    "promptTemplate": "BASE_TEMPLATE",
+    "reportStructureOverrides": {}
+  },
+  {
+    "id": "company-research",
+    "name": "Company Research",
+    "description": "Analyze corporate structure, financial health, key personnel, and reputation",
+    "discoveryAreas": ["corporate-structure", "financial-health", "key-personnel", "reputation", "regulatory-compliance", "market-position"],
+    "promptTemplate": "BASE_TEMPLATE",
+    "reportStructureOverrides": {
+      "additionalSections": ["Competitive Landscape"]
+    }
+  },
+  {
+    "id": "location-analysis",
+    "name": "Location Analysis",
+    "description": "Investigate geographic area, demographics, infrastructure, and activity patterns",
+    "discoveryAreas": ["demographics", "infrastructure", "economic-indicators", "safety-crime", "points-of-interest", "historical-events"],
+    "promptTemplate": "BASE_TEMPLATE",
+    "reportStructureOverrides": {}
+  },
+  {
+    "id": "threat-assessment",
+    "name": "Threat Assessment",
+    "description": "Evaluate security risks, vulnerabilities, and potential threat actors",
+    "discoveryAreas": ["threat-actors", "attack-vectors", "vulnerabilities", "historical-incidents", "indicators-of-compromise"],
+    "promptTemplate": "BASE_TEMPLATE",
+    "reportStructureOverrides": {
+      "additionalSections": ["Mitigation Strategies", "Likelihood Assessment"]
+    }
+  },
+  {
+    "id": "technology-profiling",
+    "name": "Technology Profiling",
+    "description": "Assess technology stack, digital footprint, and technical capabilities",
+    "discoveryAreas": ["tech-stack", "digital-infrastructure", "code-repositories", "security-posture", "patents-publications"],
+    "promptTemplate": "BASE_TEMPLATE",
+    "reportStructureOverrides": {}
+  },
+  {
+    "id": "market-intelligence",
+    "name": "Market Intelligence",
+    "description": "Gather competitive insights, market trends, and industry analysis",
+    "discoveryAreas": ["market-trends", "competitor-analysis", "customer-sentiment", "pricing-strategies", "regulatory-landscape"],
+    "promptTemplate": "BASE_TEMPLATE",
+    "reportStructureOverrides": {
+      "additionalSections": ["Market Opportunities", "Threats"]
+    }
+  },
+  {
+    "id": "reputation-analysis",
+    "name": "Reputation Analysis",
+    "description": "Evaluate public perception, media coverage, and stakeholder sentiment",
+    "discoveryAreas": ["media-coverage", "social-sentiment", "reviews-ratings", "controversies", "brand-associations"],
+    "promptTemplate": "BASE_TEMPLATE",
+    "reportStructureOverrides": {}
+  },
+  {
+    "id": "event-investigation",
+    "name": "Event Investigation",
+    "description": "Reconstruct timeline, participants, and context of specific events",
+    "discoveryAreas": ["timeline-reconstruction", "participants", "location-context", "media-reports", "witness-accounts"],
+    "promptTemplate": "BASE_TEMPLATE",
+    "reportStructureOverrides": {
+      "additionalSections": ["Chronological Timeline"]
+    }
+  }
+];
+
+    // Discovery Areas Contract
+    const DISCOVERY_AREAS = [
+  {
+    "id": "social-media",
+    "name": "Social Media Presence",
+    "description": "Profiles, posts, connections on Facebook, Twitter, LinkedIn, Instagram, etc.",
+    "applicableTypes": ["person-investigation", "reputation-analysis"],
+    "defaultEnabled": true,
+    "isCustom": false
+  },
+  {
+    "id": "employment-history",
+    "name": "Employment History",
+    "description": "Past and current employers, job titles, career progression",
+    "applicableTypes": ["person-investigation"],
+    "defaultEnabled": true,
+    "isCustom": false
+  },
+  {
+    "id": "education",
+    "name": "Education Background",
+    "description": "Schools attended, degrees earned, certifications",
+    "applicableTypes": ["person-investigation"],
+    "defaultEnabled": true,
+    "isCustom": false
+  },
+  {
+    "id": "criminal-records",
+    "name": "Criminal Records",
+    "description": "Arrests, convictions, court cases, legal history",
+    "applicableTypes": ["person-investigation", "threat-assessment"],
+    "defaultEnabled": false,
+    "isCustom": false
+  },
+  {
+    "id": "financial-records",
+    "name": "Financial Records",
+    "description": "Property ownership, bankruptcies, liens, business registrations",
+    "applicableTypes": ["person-investigation", "company-research"],
+    "defaultEnabled": false,
+    "isCustom": false
+  },
+  {
+    "id": "family-connections",
+    "name": "Family & Personal Connections",
+    "description": "Relatives, associates, known relationships",
+    "applicableTypes": ["person-investigation"],
+    "defaultEnabled": true,
+    "isCustom": false
+  },
+  {
+    "id": "corporate-structure",
+    "name": "Corporate Structure",
+    "description": "Subsidiaries, parent companies, ownership hierarchy",
+    "applicableTypes": ["company-research"],
+    "defaultEnabled": true,
+    "isCustom": false
+  },
+  {
+    "id": "financial-health",
+    "name": "Financial Health",
+    "description": "Revenue, profitability, debt, credit ratings",
+    "applicableTypes": ["company-research", "market-intelligence"],
+    "defaultEnabled": true,
+    "isCustom": false
+  },
+  {
+    "id": "key-personnel",
+    "name": "Key Personnel",
+    "description": "Executives, board members, key employees",
+    "applicableTypes": ["company-research"],
+    "defaultEnabled": true,
+    "isCustom": false
+  },
+  {
+    "id": "reputation",
+    "name": "Company Reputation",
+    "description": "Reviews, ratings, customer complaints, industry standing",
+    "applicableTypes": ["company-research", "reputation-analysis"],
+    "defaultEnabled": true,
+    "isCustom": false
+  },
+  {
+    "id": "regulatory-compliance",
+    "name": "Regulatory Compliance",
+    "description": "Licenses, permits, violations, regulatory filings",
+    "applicableTypes": ["company-research", "market-intelligence"],
+    "defaultEnabled": false,
+    "isCustom": false
+  },
+  {
+    "id": "market-position",
+    "name": "Market Position",
+    "description": "Market share, competitive ranking, industry leadership",
+    "applicableTypes": ["company-research", "market-intelligence"],
+    "defaultEnabled": true,
+    "isCustom": false
+  },
+  {
+    "id": "demographics",
+    "name": "Demographics",
+    "description": "Population size, age distribution, income levels, diversity",
+    "applicableTypes": ["location-analysis"],
+    "defaultEnabled": true,
+    "isCustom": false
+  },
+  {
+    "id": "infrastructure",
+    "name": "Infrastructure",
+    "description": "Transportation, utilities, public services, connectivity",
+    "applicableTypes": ["location-analysis"],
+    "defaultEnabled": true,
+    "isCustom": false
+  },
+  {
+    "id": "economic-indicators",
+    "name": "Economic Indicators",
+    "description": "Employment rates, business growth, real estate trends",
+    "applicableTypes": ["location-analysis", "market-intelligence"],
+    "defaultEnabled": true,
+    "isCustom": false
+  },
+  {
+    "id": "safety-crime",
+    "name": "Safety & Crime Statistics",
+    "description": "Crime rates, law enforcement presence, safety rankings",
+    "applicableTypes": ["location-analysis"],
+    "defaultEnabled": false,
+    "isCustom": false
+  },
+  {
+    "id": "points-of-interest",
+    "name": "Points of Interest",
+    "description": "Landmarks, businesses, institutions, notable locations",
+    "applicableTypes": ["location-analysis"],
+    "defaultEnabled": false,
+    "isCustom": false
+  },
+  {
+    "id": "historical-events",
+    "name": "Historical Events",
+    "description": "Significant past events, development history",
+    "applicableTypes": ["location-analysis", "event-investigation"],
+    "defaultEnabled": false,
+    "isCustom": false
+  },
+  {
+    "id": "threat-actors",
+    "name": "Threat Actors",
+    "description": "Known adversaries, hacker groups, malicious entities",
+    "applicableTypes": ["threat-assessment"],
+    "defaultEnabled": true,
+    "isCustom": false
+  },
+  {
+    "id": "attack-vectors",
+    "name": "Attack Vectors",
+    "description": "Common attack methods, entry points, tactics",
+    "applicableTypes": ["threat-assessment"],
+    "defaultEnabled": true,
+    "isCustom": false
+  },
+  {
+    "id": "vulnerabilities",
+    "name": "Vulnerabilities",
+    "description": "Known weaknesses, security gaps, exploitable flaws",
+    "applicableTypes": ["threat-assessment", "technology-profiling"],
+    "defaultEnabled": true,
+    "isCustom": false
+  },
+  {
+    "id": "historical-incidents",
+    "name": "Historical Incidents",
+    "description": "Past security breaches, attacks, incidents",
+    "applicableTypes": ["threat-assessment"],
+    "defaultEnabled": true,
+    "isCustom": false
+  },
+  {
+    "id": "indicators-of-compromise",
+    "name": "Indicators of Compromise",
+    "description": "IPs, domains, hashes, patterns suggesting threats",
+    "applicableTypes": ["threat-assessment"],
+    "defaultEnabled": false,
+    "isCustom": false
+  },
+  {
+    "id": "tech-stack",
+    "name": "Technology Stack",
+    "description": "Languages, frameworks, platforms, tools used",
+    "applicableTypes": ["technology-profiling"],
+    "defaultEnabled": true,
+    "isCustom": false
+  },
+  {
+    "id": "digital-infrastructure",
+    "name": "Digital Infrastructure",
+    "description": "Servers, cloud services, DNS, hosting",
+    "applicableTypes": ["technology-profiling"],
+    "defaultEnabled": true,
+    "isCustom": false
+  },
+  {
+    "id": "code-repositories",
+    "name": "Code Repositories",
+    "description": "GitHub, GitLab, open-source projects",
+    "applicableTypes": ["technology-profiling"],
+    "defaultEnabled": true,
+    "isCustom": false
+  },
+  {
+    "id": "security-posture",
+    "name": "Security Posture",
+    "description": "SSL/TLS, security headers, vulnerability reports",
+    "applicableTypes": ["technology-profiling", "threat-assessment"],
+    "defaultEnabled": true,
+    "isCustom": false
+  },
+  {
+    "id": "patents-publications",
+    "name": "Patents & Publications",
+    "description": "Intellectual property, research papers, technical blogs",
+    "applicableTypes": ["technology-profiling"],
+    "defaultEnabled": false,
+    "isCustom": false
+  },
+  {
+    "id": "market-trends",
+    "name": "Market Trends",
+    "description": "Industry direction, emerging opportunities, shifts",
+    "applicableTypes": ["market-intelligence"],
+    "defaultEnabled": true,
+    "isCustom": false
+  },
+  {
+    "id": "competitor-analysis",
+    "name": "Competitor Analysis",
+    "description": "Competitive positioning, strengths, weaknesses",
+    "applicableTypes": ["market-intelligence"],
+    "defaultEnabled": true,
+    "isCustom": false
+  },
+  {
+    "id": "customer-sentiment",
+    "name": "Customer Sentiment",
+    "description": "Reviews, feedback, satisfaction scores",
+    "applicableTypes": ["market-intelligence", "reputation-analysis"],
+    "defaultEnabled": true,
+    "isCustom": false
+  },
+  {
+    "id": "pricing-strategies",
+    "name": "Pricing Strategies",
+    "description": "Pricing models, competitor pricing, value proposition",
+    "applicableTypes": ["market-intelligence"],
+    "defaultEnabled": false,
+    "isCustom": false
+  },
+  {
+    "id": "regulatory-landscape",
+    "name": "Regulatory Landscape",
+    "description": "Industry regulations, compliance requirements",
+    "applicableTypes": ["market-intelligence"],
+    "defaultEnabled": false,
+    "isCustom": false
+  },
+  {
+    "id": "media-coverage",
+    "name": "Media Coverage",
+    "description": "News articles, press releases, media mentions",
+    "applicableTypes": ["reputation-analysis", "event-investigation"],
+    "defaultEnabled": true,
+    "isCustom": false
+  },
+  {
+    "id": "social-sentiment",
+    "name": "Social Media Sentiment",
+    "description": "Public opinion, trending topics, sentiment analysis",
+    "applicableTypes": ["reputation-analysis"],
+    "defaultEnabled": true,
+    "isCustom": false
+  },
+  {
+    "id": "reviews-ratings",
+    "name": "Reviews & Ratings",
+    "description": "Customer reviews, ratings, testimonials",
+    "applicableTypes": ["reputation-analysis"],
+    "defaultEnabled": true,
+    "isCustom": false
+  },
+  {
+    "id": "controversies",
+    "name": "Controversies",
+    "description": "Scandals, disputes, negative publicity",
+    "applicableTypes": ["reputation-analysis"],
+    "defaultEnabled": false,
+    "isCustom": false
+  },
+  {
+    "id": "brand-associations",
+    "name": "Brand Associations",
+    "description": "Partnerships, sponsorships, affiliated brands",
+    "applicableTypes": ["reputation-analysis"],
+    "defaultEnabled": false,
+    "isCustom": false
+  },
+  {
+    "id": "timeline-reconstruction",
+    "name": "Timeline Reconstruction",
+    "description": "Chronological sequence of events",
+    "applicableTypes": ["event-investigation"],
+    "defaultEnabled": true,
+    "isCustom": false
+  },
+  {
+    "id": "participants",
+    "name": "Event Participants",
+    "description": "Individuals, organizations involved",
+    "applicableTypes": ["event-investigation"],
+    "defaultEnabled": true,
+    "isCustom": false
+  },
+  {
+    "id": "location-context",
+    "name": "Location Context",
+    "description": "Where the event occurred, geographic significance",
+    "applicableTypes": ["event-investigation"],
+    "defaultEnabled": true,
+    "isCustom": false
+  },
+  {
+    "id": "media-reports",
+    "name": "Media Reports",
+    "description": "News coverage, eyewitness accounts",
+    "applicableTypes": ["event-investigation"],
+    "defaultEnabled": true,
+    "isCustom": false
+  },
+  {
+    "id": "witness-accounts",
+    "name": "Witness Accounts",
+    "description": "First-hand testimonies, statements",
+    "applicableTypes": ["event-investigation"],
+    "defaultEnabled": false,
+    "isCustom": false
+  }
+];
+
+    // Prompt Templates Contract
+    const PROMPT_TEMPLATES = {
+  "baseTemplate": {
+    "name": "OSINT 4-Phase Intelligence Report Template",
+    "description": "Professional OSINT methodology template for all 8 intelligence types",
+    "template": "# OSINT Intelligence Report: {INTELLIGENCE_TYPE}\n\n## Investigation Target\n**Subject**: {TARGET}\n**Timeframe**: {TIMEFRAME}\n**Analysis Type**: {INTELLIGENCE_TYPE}\n**Investigation Scope**: {DISCOVERY_AREAS}\n\n---\n\n## Phase 1: Discovery (Target Identification & Scoping)\n\nConduct comprehensive open-source research to identify and scope the investigation target. Focus on:\n\n{DISCOVERY_AREAS_DETAILED}\n\n**Objectives**:\n- Establish baseline understanding of the target\n- Identify key data sources and collection points\n- Define investigation boundaries and priorities\n\n---\n\n## Phase 2: Signals (Raw Data Collection)\n\nGather raw, unprocessed data from open sources. For each discovery area, collect:\n\n{DISCOVERY_AREAS_COLLECTION}\n\n**Collection Requirements**:\n{EVIDENCE_REQUIREMENTS}\n\n---\n\n## Phase 3: Insights (Analysis & Pattern Recognition)\n\nAnalyze collected data to identify patterns, connections, and significance. Provide:\n\n### Key Findings\n- **Finding 1**: [Description with confidence level: High/Medium/Low]\n- **Finding 2**: [Description with confidence level: High/Medium/Low]\n- **Finding 3**: [Description with confidence level: High/Medium/Low]\n\n### Pattern Analysis\n- Identify trends, anomalies, and correlations across data sources\n- Cross-reference information for validation and corroboration\n- Assess reliability and credibility of sources\n\n### Confidence Assessment\nFor each finding, assign:\n- **High Confidence**: Multiple credible sources, recent data, directly verified\n- **Medium Confidence**: Single credible source or older data, indirectly verified\n- **Low Confidence**: Unverified, single uncredible source, or speculative\n\n---\n\n## Phase 4: Receipts (Evidence Documentation)\n\nDocument all evidence with full attribution and verification status.\n\n### Evidence Log\n\nFor each piece of evidence, provide:\n\n1. **Source**: [URL, document name, or identifier]\n2. **Collection Timestamp**: [ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ]\n3. **Reliability Assessment**: [Verified/Likely/Unverified]\n4. **Corroboration Status**: [Confirmed by N sources / Standalone]\n5. **Content Summary**: [Brief description of what this evidence shows]\n\n---\n\n## Report Structure\n\n### Executive Summary\n(Max 200 words) Concise overview of investigation, key findings, and recommendations.\n\n### Background\nContext and rationale for this intelligence investigation.\n\n### Findings\n(Organized by discovery area) Detailed results from each investigation dimension.\n\n### Analysis\nPatterns, insights, and intelligence value extracted from findings.\n\n### Recommendations\nActionable next steps based on intelligence gathered.\n\n### Sources\nComplete bibliography of all sources consulted.\n\n{REPORT_STRUCTURE_OVERRIDES}\n\n---\n\n## Quality Standards\n\n- **Factual Accuracy**: ≥90% of claims must be evidence-based\n- **Source Attribution**: Every claim must cite at least one source\n- **Confidence Scoring**: All assessments include High/Medium/Low confidence\n- **Structured Format**: Follow Background → Findings → Analysis → Recommendations\n- **Professional Tone**: Enterprise intelligence quality, objective and analytical\n\n---\n\nGenerate a comprehensive OSINT intelligence report following this methodology. Ensure all evidence is properly attributed and confidence levels are assigned to all analytical conclusions.\n"
+  },
+  "evidenceRequirements": {
+    "sourceURL": "Provide full URL or document identifier for every piece of information",
+    "timestamp": "Include collection timestamp in ISO 8601 format (YYYY-MM-DDTHH:MM:SSZ)",
+    "confidenceLevel": "Assign High/Medium/Low confidence to all claims and findings",
+    "corroboration": "Note if information is confirmed by multiple sources or standalone",
+    "reliability": "Assess source credibility: Verified (official), Likely (reputable), Unverified (unconfirmed)"
+  },
+  "placeholders": {
+    "{INTELLIGENCE_TYPE}": "Name of selected intelligence analysis type",
+    "{TARGET}": "HTML-escaped target specification (name, entity, location)",
+    "{TIMEFRAME}": "Human-readable timeframe (e.g., 'Last 6 months' or 'January 1, 2024 - June 30, 2024' or 'All time')",
+    "{DISCOVERY_AREAS}": "Comma-separated list of enabled discovery areas",
+    "{DISCOVERY_AREAS_DETAILED}": "Bulleted list with descriptions of each discovery area",
+    "{DISCOVERY_AREAS_COLLECTION}": "Specific collection instructions per discovery area",
+    "{EVIDENCE_REQUIREMENTS}": "Formatted evidence requirements (source, timestamp, confidence, corroboration)",
+    "{REPORT_STRUCTURE_OVERRIDES}": "Additional sections specific to intelligence type (e.g., 'Mitigation Strategies' for Threat Assessment)"
+  },
+  "truncationPriority": [
+    {
+      "section": "4-Phase OSINT Structure",
+      "priority": 1,
+      "action": "NEVER_TRUNCATE",
+      "rationale": "Core methodology must remain intact"
+    },
+    {
+      "section": "Intelligence Type Context",
+      "priority": 2,
+      "action": "NEVER_TRUNCATE",
+      "rationale": "Defines investigation scope"
+    },
+    {
+      "section": "Discovery Areas",
+      "priority": 3,
+      "action": "TRUNCATE_FROM_BOTTOM",
+      "rationale": "Remove least important areas first"
+    },
+    {
+      "section": "Evidence Requirements",
+      "priority": 4,
+      "action": "SUMMARIZE",
+      "rationale": "Condense from detailed to concise"
+    },
+    {
+      "section": "Examples",
+      "priority": 5,
+      "action": "REMOVE_FIRST",
+      "rationale": "Optional, helpful but not critical"
+    }
+  ]
+};
+  </script>
+
+  <!-- MODELS: T007-T011 -->
+  <script>
+    /**
+     * Model Classes - Entity Layer
+     * T007-T011: IntelligenceType, DiscoveryArea, TargetSpecification, SavedTemplate, GeneratedPrompt
+     */
+
+    // T007: IntelligenceType class
+    class IntelligenceType {
+      constructor({ id, name, description, discoveryAreas, promptTemplate, reportStructureOverrides }) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.discoveryAreas = discoveryAreas || [];
+        this.promptTemplate = promptTemplate;
+        this.reportStructureOverrides = reportStructureOverrides || {};
+      }
+
+      static findById(id) {
+        const type = INTELLIGENCE_TYPES.find(type => type.id === id);
+        return type ? new IntelligenceType(type) : null;
+      }
+
+      static getAll() {
+        return INTELLIGENCE_TYPES.map(type => new IntelligenceType(type));
+      }
+    }
+
+    // T008: DiscoveryArea class
+    class DiscoveryArea {
+      constructor({ id, name, description, applicableTypes, defaultEnabled, isCustom }) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.applicableTypes = applicableTypes || [];
+        this.defaultEnabled = defaultEnabled || false;
+        this.isCustom = isCustom || false;
+      }
+
+      static findById(id) {
+        const area = DISCOVERY_AREAS.find(area => area.id === id);
+        return area ? new DiscoveryArea(area) : null;
+      }
+
+      static getByIntelligenceType(typeId) {
+        return DISCOVERY_AREAS.filter(area => area.applicableTypes.includes(typeId))
+          .map(area => new DiscoveryArea(area));
+      }
+
+      static getDefaultEnabled(typeId) {
+        return DISCOVERY_AREAS.filter(area =>
+          area.applicableTypes.includes(typeId) && area.defaultEnabled
+        ).map(area => new DiscoveryArea(area));
+      }
+    }
+
+    // T009: TargetSpecification class
+    class TargetSpecification {
+      constructor({ targetName, timeframe, intelligenceTypeId }) {
+        this.targetName = targetName || '';
+        this.timeframe = timeframe || { type: 'all', value: null };
+        this.intelligenceTypeId = intelligenceTypeId;
+      }
+
+      escapeHTML(str) {
+        const escapeMap = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+        return str.replace(/[&<>"']/g, char => escapeMap[char]);
+      }
+
+      validate() {
+        const errors = [];
+
+        // Validate targetName
+        if (!this.targetName || this.targetName.trim().length === 0) {
+          errors.push('Target name cannot be empty');
+        }
+
+        // Validate timeframe structure
+        if (this.timeframe && this.timeframe.type === 'custom') {
+          if (!this.timeframe.value || !this.timeframe.value.start || !this.timeframe.value.end) {
+            errors.push('Custom timeframe must have start and end dates');
+          } else if (new Date(this.timeframe.value.end) < new Date(this.timeframe.value.start)) {
+            errors.push('End date must be after start date');
+          }
+        }
+
+        return {
+          valid: errors.length === 0,
+          errors
+        };
+      }
+
+      getEscapedTargetName() {
+        return this.escapeHTML(this.targetName.trim());
+      }
+
+      getHumanReadableTimeframe() {
+        if (!this.timeframe || this.timeframe.type === 'all') {
+          return 'All time';
+        }
+
+        const timeframeMap = {
+          '7d': 'Last 7 days',
+          '30d': 'Last 30 days',
+          '180d': 'Last 6 months',
+          '365d': 'Last 1 year'
+        };
+
+        if (this.timeframe.type === 'relative') {
+          return timeframeMap[this.timeframe.value] || 'All time';
+        }
+
+        if (this.timeframe.type === 'custom' && this.timeframe.value) {
+          const start = new Date(this.timeframe.value.start).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+          const end = new Date(this.timeframe.value.end).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+          return `${start} - ${end}`;
+        }
+
+        return 'All time';
+      }
+    }
+
+    // T010: SavedTemplate class
+    class SavedTemplate {
+      constructor({ id, name, intelligenceTypeId, selectedDiscoveryAreas, customDiscoveryAreas, targetSpecification, createdAt }) {
+        this.id = id || crypto.randomUUID();
+        this.name = name;
+        this.intelligenceTypeId = intelligenceTypeId;
+        this.selectedDiscoveryAreas = selectedDiscoveryAreas || [];
+        this.customDiscoveryAreas = customDiscoveryAreas || [];
+        this.targetSpecification = targetSpecification || null;
+        this.createdAt = createdAt || new Date().toISOString();
+      }
+
+      toJSON() {
+        return {
+          id: this.id,
+          name: this.name,
+          intelligenceTypeId: this.intelligenceTypeId,
+          selectedDiscoveryAreas: this.selectedDiscoveryAreas,
+          customDiscoveryAreas: this.customDiscoveryAreas,
+          targetSpecification: this.targetSpecification,
+          createdAt: this.createdAt
+        };
+      }
+
+      static fromJSON(json) {
+        return new SavedTemplate(json);
+      }
+
+      static getAll() {
+        try {
+          const templates = localStorage.getItem('osint_templates');
+          if (!templates) return [];
+          return JSON.parse(templates).map(t => SavedTemplate.fromJSON(t));
+        } catch (error) {
+          console.error('Error loading templates from LocalStorage:', error);
+          return [];
+        }
+      }
+
+      static save(template) {
+        try {
+          const templates = SavedTemplate.getAll();
+
+          // Check for duplicate names
+          if (templates.some(t => t.name === template.name && t.id !== template.id)) {
+            throw new Error('Template name must be unique');
+          }
+
+          // Check max templates limit
+          if (templates.length >= 500 && !templates.some(t => t.id === template.id)) {
+            throw new Error('Maximum of 500 templates reached');
+          }
+
+          // Check max custom areas
+          if (template.customDiscoveryAreas && template.customDiscoveryAreas.length > 10) {
+            throw new Error('Maximum of 10 custom discovery areas per template');
+          }
+
+          // Update existing or add new
+          const existingIndex = templates.findIndex(t => t.id === template.id);
+          if (existingIndex >= 0) {
+            templates[existingIndex] = template;
+          } else {
+            templates.push(template);
+          }
+
+          localStorage.setItem('osint_templates', JSON.stringify(templates.map(t => t.toJSON())));
+          return true;
+        } catch (error) {
+          console.error('Error saving template:', error);
+          throw error;
+        }
+      }
+
+      static delete(id) {
+        try {
+          const templates = SavedTemplate.getAll();
+          const filtered = templates.filter(t => t.id !== id);
+          localStorage.setItem('osint_templates', JSON.stringify(filtered.map(t => t.toJSON())));
+          return true;
+        } catch (error) {
+          console.error('Error deleting template:', error);
+          throw error;
+        }
+      }
+    }
+
+    // T011: GeneratedPrompt class
+    class GeneratedPrompt {
+      constructor({ intelligenceType, discoveryAreas, targetSpecification }) {
+        this.intelligenceType = intelligenceType;
+        this.discoveryAreas = discoveryAreas || [];
+        this.targetSpecification = targetSpecification;
+        this.content = '';
+        this.characterCount = 0;
+        this.wasTruncated = false;
+      }
+
+      generate() {
+        // Start with base template
+        let prompt = PROMPT_TEMPLATES.baseTemplate.template;
+
+        // Replace variables
+        prompt = this.replaceVariables(prompt);
+
+        // Check length and truncate if needed
+        if (prompt.length > 8000) {
+          prompt = this.truncate(prompt);
+          this.wasTruncated = true;
+        }
+
+        this.content = prompt;
+        this.characterCount = prompt.length;
+
+        return this.content;
+      }
+
+      replaceVariables(template) {
+        let result = template;
+
+        // {INTELLIGENCE_TYPE}
+        result = result.replace(/{INTELLIGENCE_TYPE}/g, this.intelligenceType.name);
+
+        // {TARGET}
+        result = result.replace(/{TARGET}/g, this.targetSpecification.getEscapedTargetName());
+
+        // {TIMEFRAME}
+        result = result.replace(/{TIMEFRAME}/g, this.targetSpecification.getHumanReadableTimeframe());
+
+        // {DISCOVERY_AREAS} - comma-separated list
+        const areaNames = this.discoveryAreas.map(a => a.name).join(', ');
+        result = result.replace(/{DISCOVERY_AREAS}/g, areaNames);
+
+        // {DISCOVERY_AREAS_DETAILED} - bulleted list with descriptions
+        const areasDetailed = this.discoveryAreas.map(a =>
+          `- **${a.name}**: ${a.description}`
+        ).join('\n');
+        result = result.replace(/{DISCOVERY_AREAS_DETAILED}/g, areasDetailed);
+
+        // {DISCOVERY_AREAS_COLLECTION} - specific collection instructions
+        const areasCollection = this.discoveryAreas.map(a =>
+          `### ${a.name}\n${a.description}\n- Document all sources and timestamps\n- Assess information reliability`
+        ).join('\n\n');
+        result = result.replace(/{DISCOVERY_AREAS_COLLECTION}/g, areasCollection);
+
+        // {EVIDENCE_REQUIREMENTS} - formatted requirements
+        const evidenceReqs = Object.entries(PROMPT_TEMPLATES.evidenceRequirements)
+          .map(([key, value]) => `- **${key}**: ${value}`)
+          .join('\n');
+        result = result.replace(/{EVIDENCE_REQUIREMENTS}/g, evidenceReqs);
+
+        // {REPORT_STRUCTURE_OVERRIDES} - additional sections for this type
+        let overrides = '';
+        if (this.intelligenceType.reportStructureOverrides && this.intelligenceType.reportStructureOverrides.additionalSections) {
+          overrides = '\n\n### Additional Analysis Sections\n\n' +
+            this.intelligenceType.reportStructureOverrides.additionalSections.map(s => `- ${s}`).join('\n');
+        }
+        result = result.replace(/{REPORT_STRUCTURE_OVERRIDES}/g, overrides);
+
+        return result;
+      }
+
+      truncate(prompt) {
+        // Priority-based truncation strategy
+        // Priority 1-2: NEVER_TRUNCATE (4-phase structure, intelligence type context)
+        // Priority 3: TRUNCATE_FROM_BOTTOM (discovery areas)
+        // Priority 4: SUMMARIZE (evidence requirements)
+        // Priority 5: REMOVE_FIRST (examples - not present in current template)
+
+        // Simple strategy: Remove discovery areas from bottom until under 8000
+        let truncated = prompt;
+        const maxLength = 8000;
+
+        if (truncated.length <= maxLength) {
+          return truncated;
+        }
+
+        // Strategy: Summarize discovery areas collection section
+        const collectionSectionMatch = truncated.match(/## Phase 2: Signals \(Raw Data Collection\)([\s\S]*?)## Phase 3:/);
+        if (collectionSectionMatch) {
+          const simplifiedCollection = this.discoveryAreas.slice(0, Math.max(3, Math.floor(this.discoveryAreas.length / 2)))
+            .map(a => `- ${a.name}`)
+            .join('\n');
+
+          truncated = truncated.replace(
+            collectionSectionMatch[0],
+            `## Phase 2: Signals (Raw Data Collection)\n\nGather raw data for the following areas:\n\n${simplifiedCollection}\n\n(Additional areas omitted for brevity)\n\n## Phase 3:`
+          );
+        }
+
+        // If still too long, truncate discovery areas detailed section
+        if (truncated.length > maxLength) {
+          const detailedSectionMatch = truncated.match(/Conduct comprehensive open-source research[\s\S]*?\*\*Objectives\*\*:/);
+          if (detailedSectionMatch) {
+            const simplifiedDetailed = this.discoveryAreas.slice(0, 3)
+              .map(a => `- ${a.name}`)
+              .join('\n');
+
+            truncated = truncated.replace(
+              detailedSectionMatch[0],
+              `Conduct comprehensive open-source research. Focus on:\n\n${simplifiedDetailed}\n\n(Additional areas omitted)\n\n**Objectives**:`
+            );
+          }
+        }
+
+        // Final check - if still too long, hard truncate at 8000 chars
+        if (truncated.length > maxLength) {
+          truncated = truncated.substring(0, maxLength - 100) + '\n\n... (Content truncated to fit 8000 character limit)';
+        }
+
+        return truncated;
+      }
+    }
+  </script>
+
+  <!-- CONTRACT TESTS: T004-T006 -->
+  <script>
+    /**
+     * Contract Test Suite - TDD Approach
+     * These tests validate the embedded JSON data contracts
+     * They MUST be run before implementing models (T007-T011)
+     */
+
+    // T004: Contract test for INTELLIGENCE_TYPES
+    function testIntelligenceTypesContract() {
+      console.log('=== Contract Test: intelligence-types.json ===');
+
+      const errors = [];
+      const ids = new Set();
+
+      // Check if array exists and has 8 types
+      if (!Array.isArray(INTELLIGENCE_TYPES) || INTELLIGENCE_TYPES.length !== 8) {
+        errors.push(`Expected 8 intelligence types, got ${INTELLIGENCE_TYPES?.length || 0}`);
+      }
+
+      INTELLIGENCE_TYPES.forEach((type, index) => {
+        // Check for unique IDs
+        if (ids.has(type.id)) {
+          errors.push(`Duplicate ID found: ${type.id}`);
+        }
+        ids.add(type.id);
+
+        // Check required fields
+        if (!type.name) errors.push(`Type ${index} missing 'name'`);
+        if (!type.description) errors.push(`Type ${index} missing 'description'`);
+        if (!type.promptTemplate) errors.push(`Type ${index} missing 'promptTemplate'`);
+        if (type.reportStructureOverrides === undefined) errors.push(`Type ${index} missing 'reportStructureOverrides'`);
+
+        // Check discoveryAreas array (min 3)
+        if (!Array.isArray(type.discoveryAreas) || type.discoveryAreas.length < 3) {
+          errors.push(`Type ${type.id} must have at least 3 discovery areas, has ${type.discoveryAreas?.length || 0}`);
+        }
+
+        // Check that all discoveryAreas reference valid IDs from DISCOVERY_AREAS
+        if (Array.isArray(type.discoveryAreas)) {
+          type.discoveryAreas.forEach(areaId => {
+            const areaExists = DISCOVERY_AREAS.find(a => a.id === areaId);
+            if (!areaExists) {
+              errors.push(`Type ${type.id} references invalid discovery area: ${areaId}`);
+            }
+          });
+        }
+      });
+
+      if (errors.length === 0) {
+        console.log('✅ PASS - All intelligence types valid');
+        return true;
+      } else {
+        console.error('❌ FAIL - Intelligence types validation errors:');
+        errors.forEach(err => console.error('  - ' + err));
+        return false;
+      }
+    }
+
+    // T005: Contract test for DISCOVERY_AREAS
+    function testDiscoveryAreasContract() {
+      console.log('=== Contract Test: discovery-areas.json ===');
+
+      const errors = [];
+      const ids = new Set();
+      const intelligenceTypeIds = new Set(INTELLIGENCE_TYPES.map(t => t.id));
+
+      // Check if array exists
+      if (!Array.isArray(DISCOVERY_AREAS) || DISCOVERY_AREAS.length === 0) {
+        errors.push(`Expected discovery areas array, got ${DISCOVERY_AREAS?.length || 0} items`);
+      }
+
+      DISCOVERY_AREAS.forEach((area, index) => {
+        // Check for unique IDs
+        if (ids.has(area.id)) {
+          errors.push(`Duplicate ID found: ${area.id}`);
+        }
+        ids.add(area.id);
+
+        // Check required fields
+        if (!area.name) errors.push(`Area ${index} missing 'name'`);
+        if (!area.description) errors.push(`Area ${index} missing 'description'`);
+        if (area.defaultEnabled === undefined) errors.push(`Area ${index} missing 'defaultEnabled'`);
+        if (area.isCustom === undefined) errors.push(`Area ${index} missing 'isCustom'`);
+
+        // Check applicableTypes array (min 1)
+        if (!Array.isArray(area.applicableTypes) || area.applicableTypes.length < 1) {
+          errors.push(`Area ${area.id} must have at least 1 applicable type, has ${area.applicableTypes?.length || 0}`);
+        }
+
+        // Check that all applicableTypes reference valid intelligence type IDs
+        if (Array.isArray(area.applicableTypes)) {
+          area.applicableTypes.forEach(typeId => {
+            if (!intelligenceTypeIds.has(typeId)) {
+              errors.push(`Area ${area.id} references invalid intelligence type: ${typeId}`);
+            }
+          });
+        }
+      });
+
+      if (errors.length === 0) {
+        console.log('✅ PASS - All discovery areas valid');
+        return true;
+      } else {
+        console.error('❌ FAIL - Discovery areas validation errors:');
+        errors.forEach(err => console.error('  - ' + err));
+        return false;
+      }
+    }
+
+    // T006: Contract test for PROMPT_TEMPLATES
+    function testPromptTemplatesContract() {
+      console.log('=== Contract Test: prompt-templates.json ===');
+
+      const errors = [];
+
+      // Check if baseTemplate exists
+      if (!PROMPT_TEMPLATES || !PROMPT_TEMPLATES.baseTemplate) {
+        errors.push('Missing baseTemplate object');
+        console.error('❌ FAIL - Prompt templates validation errors:');
+        errors.forEach(err => console.error('  - ' + err));
+        return false;
+      }
+
+      const template = PROMPT_TEMPLATES.baseTemplate.template;
+
+      // Check required placeholders
+      const requiredPlaceholders = [
+        '{INTELLIGENCE_TYPE}',
+        '{TARGET}',
+        '{TIMEFRAME}',
+        '{DISCOVERY_AREAS}',
+        '{EVIDENCE_REQUIREMENTS}'
+      ];
+
+      requiredPlaceholders.forEach(placeholder => {
+        if (!template.includes(placeholder)) {
+          errors.push(`Template missing required placeholder: ${placeholder}`);
+        }
+      });
+
+      // Check 4-phase structure
+      const requiredPhases = [
+        'Phase 1: Discovery',
+        'Phase 2: Signals',
+        'Phase 3: Insights',
+        'Phase 4: Receipts'
+      ];
+
+      requiredPhases.forEach(phase => {
+        if (!template.includes(phase)) {
+          errors.push(`Template missing required phase: ${phase}`);
+        }
+      });
+
+      // Check truncationPriority array (5 entries)
+      if (!Array.isArray(PROMPT_TEMPLATES.truncationPriority) || PROMPT_TEMPLATES.truncationPriority.length !== 5) {
+        errors.push(`Expected 5 truncation priority entries, got ${PROMPT_TEMPLATES.truncationPriority?.length || 0}`);
+      }
+
+      // Check priority order (1-5)
+      if (Array.isArray(PROMPT_TEMPLATES.truncationPriority)) {
+        PROMPT_TEMPLATES.truncationPriority.forEach((entry, index) => {
+          if (entry.priority !== index + 1) {
+            errors.push(`Truncation priority ${index} has incorrect priority value: ${entry.priority} (expected ${index + 1})`);
+          }
+        });
+      }
+
+      if (errors.length === 0) {
+        console.log('✅ PASS - Prompt templates valid');
+        return true;
+      } else {
+        console.error('❌ FAIL - Prompt templates validation errors:');
+        errors.forEach(err => console.error('  - ' + err));
+        return false;
+      }
+    }
+
+    // Run all contract tests on page load
+    document.addEventListener('DOMContentLoaded', () => {
+      console.log('\n🧪 Running Contract Tests (TDD) - These MUST pass before implementing models\n');
+
+      const test1 = testIntelligenceTypesContract();
+      const test2 = testDiscoveryAreasContract();
+      const test3 = testPromptTemplatesContract();
+
+      console.log('\n=== Contract Test Summary ===');
+      console.log(`Intelligence Types: ${test1 ? '✅ PASS' : '❌ FAIL'}`);
+      console.log(`Discovery Areas: ${test2 ? '✅ PASS' : '❌ FAIL'}`);
+      console.log(`Prompt Templates: ${test3 ? '✅ PASS' : '❌ FAIL'}`);
+      console.log(`\nAll Tests: ${test1 && test2 && test3 ? '✅ PASS' : '❌ FAIL'}\n`);
+    });
+  </script>
+
+  <!-- BUSINESS LOGIC: T014-T024 -->
+  <script>
+    /**
+     * T014-T024: Business Logic Implementation
+     * UI component population, event handlers, prompt generation, template management
+     */
+
+    // Application state
+    let appState = {
+      selectedTypeId: null,
+      selectedDiscoveryAreaIds: [],
+      customDiscoveryAreas: [],
+      targetSpec: null
+    };
+
+    // T014: Populate intelligence types grid
+    function populateIntelligenceTypes() {
+      const grid = document.getElementById('intelligence-types-grid');
+      grid.innerHTML = '';
+
+      INTELLIGENCE_TYPES.forEach(type => {
+        const card = document.createElement('div');
+        card.className = 'intel-card';
+        card.dataset.typeId = type.id;
+        card.tabIndex = 0;
+        card.setAttribute('role', 'radio');
+        card.setAttribute('aria-checked', 'false');
+
+        const heading = document.createElement('h3');
+        heading.textContent = type.name;
+
+        const description = document.createElement('p');
+        description.textContent = type.description;
+
+        card.appendChild(heading);
+        card.appendChild(description);
+        grid.appendChild(card);
+      });
+    }
+
+    // T015: Populate discovery areas for selected intelligence type
+    function populateDiscoveryAreas(typeId) {
+      const areas = DiscoveryArea.getByIntelligenceType(typeId);
+      const container = document.getElementById('discovery-areas-list');
+      container.innerHTML = '';
+
+      appState.selectedDiscoveryAreaIds = [];
+
+      areas.forEach(area => {
+        const div = document.createElement('div');
+        div.className = 'discovery-area-item';
+
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.id = `area-${area.id}`;
+        checkbox.value = area.id;
+        checkbox.checked = area.defaultEnabled;
+
+        if (area.defaultEnabled) {
+          appState.selectedDiscoveryAreaIds.push(area.id);
+        }
+
+        checkbox.addEventListener('change', (e) => {
+          if (e.target.checked) {
+            if (!appState.selectedDiscoveryAreaIds.includes(area.id)) {
+              appState.selectedDiscoveryAreaIds.push(area.id);
+            }
+          } else {
+            appState.selectedDiscoveryAreaIds = appState.selectedDiscoveryAreaIds.filter(id => id !== area.id);
+          }
+        });
+
+        const label = document.createElement('label');
+        label.htmlFor = `area-${area.id}`;
+        label.textContent = area.name;
+
+        const desc = document.createElement('small');
+        desc.textContent = area.description;
+
+        div.appendChild(checkbox);
+        div.appendChild(label);
+        div.appendChild(desc);
+        container.appendChild(div);
+      });
+
+      // Reset custom areas counter
+      document.getElementById('custom-area-count').textContent = `${appState.customDiscoveryAreas.length} / 10 custom areas`;
+    }
+
+    // T017: Intelligence type selection logic
+    document.addEventListener('DOMContentLoaded', () => {
+      // Initialize - check storage quota on load
+      checkStorageQuota();
+
+      // New Prompt button
+      document.getElementById('new-prompt-btn').addEventListener('click', () => {
+        // Reset state
+        appState = {
+          selectedTypeId: null,
+          selectedDiscoveryAreaIds: [],
+          customDiscoveryAreas: [],
+          targetSpec: null
+        };
+
+        populateIntelligenceTypes();
+        document.getElementById('intelligence-setup-modal').showModal();
+        document.getElementById('intelligence-next-btn').disabled = true;
+      });
+
+      // Intelligence type card selection
+      document.addEventListener('click', (e) => {
+        const card = e.target.closest('.intel-card');
+        if (card) {
+          // Deselect all cards
+          document.querySelectorAll('.intel-card').forEach(c => {
+            c.classList.remove('selected');
+            c.setAttribute('aria-checked', 'false');
+          });
+
+          // Select clicked card
+          card.classList.add('selected');
+          card.setAttribute('aria-checked', 'true');
+          appState.selectedTypeId = card.dataset.typeId;
+          document.getElementById('intelligence-next-btn').disabled = false;
+        }
+      });
+
+      // Keyboard navigation for intelligence type cards
+      document.addEventListener('keydown', (e) => {
+        const card = e.target.closest('.intel-card');
+        if (card && (e.key === 'Enter' || e.key === ' ')) {
+          e.preventDefault();
+          card.click();
+        }
+      });
+
+      // Intelligence Next button
+      document.getElementById('intelligence-next-btn').addEventListener('click', () => {
+        if (!appState.selectedTypeId) {
+          showNotification('Please select an intelligence type');
+          return;
+        }
+
+        document.getElementById('intelligence-setup-modal').close();
+        document.getElementById('discovery-config-modal').showModal();
+        populateDiscoveryAreas(appState.selectedTypeId);
+      });
+
+      // T018: Discovery area toggling logic (already implemented in populateDiscoveryAreas)
+
+      // Add custom discovery area
+      document.getElementById('add-custom-area-btn').addEventListener('click', () => {
+        const input = document.getElementById('custom-area-input');
+        const name = input.value.trim();
+
+        if (!name) {
+          showNotification('Please enter a custom area name');
+          return;
+        }
+
+        if (appState.customDiscoveryAreas.length >= 10) {
+          showNotification('Maximum 10 custom areas allowed');
+          return;
+        }
+
+        appState.customDiscoveryAreas.push(name);
+
+        // Add to UI
+        const container = document.getElementById('discovery-areas-list');
+        const div = document.createElement('div');
+        div.className = 'discovery-area-item custom';
+
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.checked = true;
+        checkbox.disabled = true;
+
+        const label = document.createElement('label');
+        label.textContent = name;
+
+        const desc = document.createElement('small');
+        desc.textContent = 'Custom discovery area';
+
+        div.appendChild(checkbox);
+        div.appendChild(label);
+        div.appendChild(desc);
+        container.appendChild(div);
+
+        input.value = '';
+        document.getElementById('custom-area-count').textContent = `${appState.customDiscoveryAreas.length} / 10 custom areas`;
+      });
+
+      // T019: Target specification logic
+
+      // Timeframe dropdown change
+      document.getElementById('timeframe-select').addEventListener('change', (e) => {
+        const customRange = document.getElementById('custom-date-range');
+        customRange.style.display = e.target.value === 'custom' ? 'block' : 'none';
+      });
+
+      // Discovery Back button
+      document.getElementById('discovery-back-btn').addEventListener('click', () => {
+        document.getElementById('discovery-config-modal').close();
+        document.getElementById('intelligence-setup-modal').showModal();
+      });
+
+      // Generate Prompt button
+      document.getElementById('generate-prompt-btn').addEventListener('click', () => {
+        const targetName = document.getElementById('target-name-input').value.trim();
+        if (!targetName) {
+          showNotification('Please enter a target name');
+          return;
+        }
+
+        const timeframeSelect = document.getElementById('timeframe-select').value;
+        let timeframe = { type: 'all', value: null };
+
+        if (timeframeSelect !== 'all' && timeframeSelect !== 'custom') {
+          timeframe = { type: 'relative', value: timeframeSelect };
+        } else if (timeframeSelect === 'custom') {
+          const start = document.getElementById('date-start').value;
+          const end = document.getElementById('date-end').value;
+          if (!start || !end) {
+            showNotification('Please select both start and end dates');
+            return;
+          }
+          if (new Date(end) < new Date(start)) {
+            showNotification('End date must be after start date');
+            return;
+          }
+          timeframe = { type: 'custom', value: { start, end } };
+        }
+
+        appState.targetSpec = new TargetSpecification({
+          targetName,
+          timeframe,
+          intelligenceTypeId: appState.selectedTypeId
+        });
+
+        const validation = appState.targetSpec.validate();
+        if (!validation.valid) {
+          showNotification(validation.errors[0]);
+          return;
+        }
+
+        generateAndDisplayPrompt(); // T020
+      });
+
+      // T020: Prompt generation logic
+      function generateAndDisplayPrompt() {
+        const intelligenceType = IntelligenceType.findById(appState.selectedTypeId);
+
+        // Get selected discovery areas
+        const selectedAreas = appState.selectedDiscoveryAreaIds.map(id => {
+          const area = DiscoveryArea.findById(id);
+          return new DiscoveryArea(area);
+        });
+
+        // Add custom areas
+        appState.customDiscoveryAreas.forEach((name, index) => {
+          selectedAreas.push(new DiscoveryArea({
+            id: `custom-${Date.now()}-${index}`,
+            name,
+            description: 'Custom discovery area',
+            applicableTypes: [appState.selectedTypeId],
+            defaultEnabled: false,
+            isCustom: true
+          }));
+        });
+
+        const generatedPrompt = new GeneratedPrompt({
+          intelligenceType: new IntelligenceType(intelligenceType),
+          discoveryAreas: selectedAreas,
+          targetSpecification: appState.targetSpec
+        });
+
+        const content = generatedPrompt.generate();
+
+        document.getElementById('generated-prompt-text').value = content;
+        document.getElementById('character-count').textContent = `${generatedPrompt.characterCount.toLocaleString()} / 8,000 characters`;
+        document.getElementById('truncation-warning').style.display = generatedPrompt.wasTruncated ? 'block' : 'none';
+
+        document.getElementById('discovery-config-modal').close();
+        document.getElementById('prompt-generated-modal').showModal();
+      }
+
+      // T021: Copy to clipboard logic
+      document.getElementById('copy-clipboard-btn').addEventListener('click', async () => {
+        const text = document.getElementById('generated-prompt-text').value;
+
+        try {
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            await navigator.clipboard.writeText(text);
+          } else {
+            // Fallback
+            const textarea = document.getElementById('generated-prompt-text');
+            textarea.select();
+            document.execCommand('copy');
+          }
+          showNotification('Prompt copied to clipboard!');
+        } catch (error) {
+          showNotification('Failed to copy to clipboard');
+        }
+      });
+
+      // T022: Save template logic
+      document.getElementById('save-template-btn').addEventListener('click', () => {
+        document.getElementById('save-template-modal').showModal();
+      });
+
+      document.getElementById('confirm-save-template-btn').addEventListener('click', () => {
+        const name = document.getElementById('template-name-input').value.trim();
+
+        if (!name) {
+          showNotification('Please enter a template name');
+          return;
+        }
+
+        const template = new SavedTemplate({
+          name,
+          intelligenceTypeId: appState.selectedTypeId,
+          selectedDiscoveryAreas: appState.selectedDiscoveryAreaIds,
+          customDiscoveryAreas: appState.customDiscoveryAreas,
+          targetSpecification: appState.targetSpec.toJSON ? appState.targetSpec.toJSON() : {
+            targetName: appState.targetSpec.targetName,
+            timeframe: appState.targetSpec.timeframe,
+            intelligenceTypeId: appState.targetSpec.intelligenceTypeId
+          }
+        });
+
+        try {
+          SavedTemplate.save(template);
+          showNotification('Template saved!');
+          document.getElementById('save-template-modal').close();
+          document.getElementById('template-name-input').value = '';
+          checkStorageQuota();
+        } catch (error) {
+          showNotification(error.message);
+        }
+      });
+
+      // T023: Load template logic
+      document.getElementById('load-template-btn').addEventListener('click', () => {
+        const templates = SavedTemplate.getAll();
+        const container = document.getElementById('template-list');
+        container.innerHTML = '';
+
+        if (templates.length === 0) {
+          container.innerHTML = '<p style="text-align: center; padding: 20px; color: #666;">No saved templates</p>';
+        } else {
+          templates.forEach(template => {
+            const div = document.createElement('div');
+            div.className = 'template-item';
+
+            const type = IntelligenceType.findById(template.intelligenceTypeId);
+            const date = new Date(template.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+
+            const infoDiv = document.createElement('div');
+            infoDiv.className = 'template-info';
+
+            const nameStrong = document.createElement('strong');
+            nameStrong.textContent = template.name;
+
+            const metaSmall = document.createElement('small');
+            metaSmall.textContent = `${type?.name || 'Unknown'} - ${date}`;
+
+            infoDiv.appendChild(nameStrong);
+            infoDiv.appendChild(metaSmall);
+
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'btn-delete';
+            deleteBtn.dataset.id = template.id;
+            deleteBtn.title = 'Delete template';
+            deleteBtn.textContent = '×';
+
+            infoDiv.addEventListener('click', () => {
+              loadTemplate(template);
+              document.getElementById('template-list-modal').close();
+            });
+
+            deleteBtn.addEventListener('click', (e) => {
+              e.stopPropagation();
+              deleteTemplate(template.id, template.name);
+            });
+
+            div.appendChild(infoDiv);
+            div.appendChild(deleteBtn);
+            container.appendChild(div);
+          });
+        }
+
+        document.getElementById('template-list-modal').showModal();
+      });
+
+      function loadTemplate(template) {
+        appState.selectedTypeId = template.intelligenceTypeId;
+        appState.selectedDiscoveryAreaIds = [...template.selectedDiscoveryAreas];
+        appState.customDiscoveryAreas = [...template.customDiscoveryAreas];
+
+        if (template.targetSpecification) {
+          appState.targetSpec = new TargetSpecification(template.targetSpecification);
+          document.getElementById('target-name-input').value = template.targetSpecification.targetName;
+
+          if (template.targetSpecification.timeframe) {
+            const tf = template.targetSpecification.timeframe;
+            if (tf.type === 'relative') {
+              document.getElementById('timeframe-select').value = tf.value;
+            } else if (tf.type === 'custom') {
+              document.getElementById('timeframe-select').value = 'custom';
+              document.getElementById('date-start').value = tf.value.start;
+              document.getElementById('date-end').value = tf.value.end;
+              document.getElementById('custom-date-range').style.display = 'block';
+            }
+          }
+        }
+
+        document.getElementById('discovery-config-modal').showModal();
+        populateDiscoveryAreas(appState.selectedTypeId);
+
+        // Restore selected discovery areas
+        setTimeout(() => {
+          appState.selectedDiscoveryAreaIds.forEach(areaId => {
+            const checkbox = document.getElementById(`area-${areaId}`);
+            if (checkbox) {
+              checkbox.checked = true;
+            }
+          });
+
+          // Re-add custom areas to UI
+          const container = document.getElementById('discovery-areas-list');
+          appState.customDiscoveryAreas.forEach(name => {
+            const div = document.createElement('div');
+            div.className = 'discovery-area-item custom';
+
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.checked = true;
+            checkbox.disabled = true;
+
+            const label = document.createElement('label');
+            label.textContent = name;
+
+            const desc = document.createElement('small');
+            desc.textContent = 'Custom discovery area';
+
+            div.appendChild(checkbox);
+            div.appendChild(label);
+            div.appendChild(desc);
+            container.appendChild(div);
+          });
+
+          document.getElementById('custom-area-count').textContent = `${appState.customDiscoveryAreas.length} / 10 custom areas`;
+        }, 100);
+      }
+
+      // T024: Delete template logic
+      function deleteTemplate(id, name) {
+        document.getElementById('delete-confirm-message').textContent = `Delete "${name}"? This cannot be undone.`;
+        document.getElementById('delete-confirm-modal').showModal();
+
+        const confirmBtn = document.getElementById('confirm-delete-btn');
+        const newConfirmBtn = confirmBtn.cloneNode(true);
+        confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+
+        newConfirmBtn.addEventListener('click', () => {
+          try {
+            SavedTemplate.delete(id);
+            showNotification('Template deleted');
+            document.getElementById('delete-confirm-modal').close();
+            document.getElementById('template-list-modal').close();
+            checkStorageQuota();
+          } catch (error) {
+            showNotification('Failed to delete template');
+          }
+        });
+      }
+    });
+  </script>
+
+  <!-- INTEGRATION: T025-T027 -->
+  <script>
+    /**
+     * T025-T027: Integration Features
+     * LocalStorage quota management, dialog polyfill, modal close handlers, notifications
+     */
+
+    // T025: LocalStorage quota management
+    function checkStorageQuota() {
+      if (navigator.storage && navigator.storage.estimate) {
+        navigator.storage.estimate().then(estimate => {
+          const used = estimate.usage || 0;
+          const quota = estimate.quota || 0;
+          const percent = (used / quota) * 100;
+
+          if (percent > 80) {
+            const templates = SavedTemplate.getAll();
+            console.warn(`Storage ${percent.toFixed(1)}% full (${templates.length} templates saved)`);
+          }
+        }).catch(err => {
+          console.error('Failed to estimate storage quota:', err);
+        });
+      }
+    }
+
+    // T026: Dialog polyfill for Safari <15.4
+    if (!window.HTMLDialogElement) {
+      console.warn('Dialog element not supported, adding polyfill behavior');
+
+      document.querySelectorAll('dialog').forEach(dialog => {
+        dialog.setAttribute('role', 'dialog');
+        dialog.setAttribute('aria-modal', 'true');
+
+        // Add showModal method
+        dialog.showModal = function() {
+          this.style.display = 'block';
+          this.setAttribute('open', '');
+          document.body.style.overflow = 'hidden';
+
+          // Focus first focusable element
+          const focusable = this.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+          if (focusable.length > 0) {
+            focusable[0].focus();
+          }
+        };
+
+        // Add close method
+        dialog.close = function() {
+          this.style.display = 'none';
+          this.removeAttribute('open');
+          document.body.style.overflow = '';
+        };
+      });
+    }
+
+    // T027: Modal close handlers and notification helper
+    document.addEventListener('DOMContentLoaded', () => {
+      // Close button handlers
+      document.querySelectorAll('.modal-close').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const modal = e.target.closest('dialog');
+          if (modal) modal.close();
+        });
+      });
+
+      // ESC key handler
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          const openModals = document.querySelectorAll('dialog[open]');
+          if (openModals.length > 0) {
+            openModals[openModals.length - 1].close();
+          }
+        }
+      });
+
+      // Backdrop click handler (close on click outside)
+      document.querySelectorAll('dialog').forEach(dialog => {
+        dialog.addEventListener('click', (e) => {
+          const rect = dialog.getBoundingClientRect();
+          const isInDialog = (
+            rect.top <= e.clientY &&
+            e.clientY <= rect.top + rect.height &&
+            rect.left <= e.clientX &&
+            e.clientX <= rect.left + rect.width
+          );
+
+          if (!isInDialog) {
+            dialog.close();
+          }
+        });
+      });
+    });
+
+    // Notification helper function
+    function showNotification(message) {
+      const area = document.getElementById('notification-area');
+      area.textContent = message;
+      area.style.display = 'block';
+      area.style.opacity = '1';
+
+      setTimeout(() => {
+        area.style.opacity = '0';
+        setTimeout(() => {
+          area.style.display = 'none';
+        }, 300);
+      }, 3000);
+    }
+  </script>
+</body>
+</html>
