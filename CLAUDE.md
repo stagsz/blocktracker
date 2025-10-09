@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-OSINT 2.0 is a professional intelligence prompt generator following GitHub Spec-Kit methodology. This project transforms traditional OSINT analysis from manual research to AI-powered efficiency through systematic prompt generation.
+OSINT 2.1 is a professional intelligence prompt generator following GitHub Spec-Kit methodology. This project transforms traditional OSINT analysis from manual research to AI-powered efficiency through systematic prompt generation.
 
 ## Current Implementation: OSINT 2.1
 
