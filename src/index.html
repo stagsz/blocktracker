@@ -604,11 +604,11 @@
       <h1>OSINT Intelligence Prompt Generator</h1>
       <p class="subtitle">Professional OSINT analysis made simple - generate AI-ready intelligence prompts in under 60 seconds</p>
 
-      <div class="features">
-        <div class="feature-item">
-          <strong>8 Intelligence Types</strong>
-          <p>Person, Company, Location, Threat, Technology, Market, Reputation & Event investigations</p>
-        </div>
+     <div class="features">
+      <div class="feature-item">
+        <strong>16 Intelligence Types</strong>
+          <p>Person, Company, Location, Recruitment, Energy, Technology, Market, Trend, AI, Cross-Platform, Reputation, Event, Digital Forensics, Supply Chain, Financial & Geopolitical investigations</p>
+      </div>
         <div class="feature-item">
           <strong>4-Phase OSINT Methodology</strong>
           <p>Discovery → Signals → Insights → Receipts for professional intelligence reports</p>
@@ -825,15 +825,23 @@
     "promptTemplate": "BASE_TEMPLATE",
     "reportStructureOverrides": {}
   },
-  {
-    "id": "threat-assessment",
-    "name": "Threat Assessment",
-    "description": "Evaluate security risks, vulnerabilities, and potential threat actors",
-    "discoveryAreas": ["threat-actors", "attack-vectors", "vulnerabilities", "historical-incidents", "indicators-of-compromise"],
+   {
+    "id": "recruitment-intelligence",
+    "name": "Recruitment Intelligence",
+    "description": "Analyze hiring patterns, skill demands, organizational growth, and talent acquisition strategies",
+    "discoveryAreas": ["job-postings", "skill-requirements", "compensation-analysis", "hiring-volume", "organizational-structure", "cultural-indicators"],
     "promptTemplate": "BASE_TEMPLATE",
     "reportStructureOverrides": {
-      "additionalSections": ["Mitigation Strategies", "Likelihood Assessment"]
+      "additionalSections": ["Growth Trajectory", "Skill Gap Analysis", "Market Positioning"]
     }
+  },
+  {
+    "id": "energy-sector-analysis", 
+    "name": "Energy Sector Analysis",
+    "description": "Investigate energy companies, infrastructure, regulatory compliance, and environmental impact",
+    "discoveryAreas": ["infrastructure-mapping", "environmental-impact", "regulatory-filings", "production-data", "supply-contracts"],
+    "industry": "energy",
+    "promptTemplate": "ENERGY_TEMPLATE"
   },
   {
     "id": "technology-profiling",
@@ -854,6 +862,36 @@
     }
   },
   {
+  "id": "trend-analysis",
+  "name": "Trend Analysis",
+  "description": "Identify emerging patterns, predict future developments, and analyze temporal changes",
+  "discoveryAreas": ["historical-patterns", "emerging-signals", "sentiment-trends", "volume-analysis", "predictive-indicators"],
+  "timeframe_focus": "predictive",
+  "promptTemplate": "TREND_TEMPLATE",
+  "reportStructureOverrides": {
+    "additionalSections": ["Trend Projection", "Leading Indicators", "Scenario Planning"]
+  }
+  },
+  {
+  "id": "ai-system-analysis",
+  "name": "AI System Analysis", 
+  "description": "Analyze AI models, training data, algorithmic bias, and automated decision systems",
+  "discoveryAreas": ["model-architecture", "training-datasets", "bias-assessment", "performance-metrics", "ethical-compliance"],
+  "promptTemplate": "AI_TEMPLATE",
+  "reportStructureOverrides": {
+    "additionalSections": ["Model Evaluation", "Bias Analysis", "Ethical Assessment"]
+  }
+  },
+  {
+  "id": "cross-platform-investigation",
+  "name": "Cross-Platform Investigation",
+  "description": "Correlate information across multiple platforms and data sources for comprehensive analysis",
+  "discoveryAreas": ["platform-correlation", "identity-linkage", "temporal-synchronization", "source-validation", "pattern-matching"],
+  "complexity": "high",
+  "requiredSources": ["minimum_3_platforms"],
+  "promptTemplate": "FUSION_TEMPLATE"
+  },
+  {
     "id": "reputation-analysis",
     "name": "Reputation Analysis",
     "description": "Evaluate public perception, media coverage, and stakeholder sentiment",
@@ -870,357 +908,732 @@
     "reportStructureOverrides": {
       "additionalSections": ["Chronological Timeline"]
     }
+  },
+  {
+    "id": "digital-forensics",
+    "name": "Digital Forensics",
+    "description": "Analyze digital artifacts, metadata, and evidence trails from files, communications, and devices",
+    "discoveryAreas": ["file-metadata", "communication-traces", "device-fingerprints", "network-artifacts", "deleted-data-recovery"],
+    "promptTemplate": "BASE_TEMPLATE",
+    "reportStructureOverrides": {
+      "additionalSections": ["Chain of Custody", "Technical Analysis", "Evidence Integrity"]
+    }
+  },
+  {
+    "id": "supply-chain-analysis",
+    "name": "Supply Chain Analysis", 
+    "description": "Map supplier networks, identify dependencies, and assess supply chain security risks",
+    "discoveryAreas": ["supplier-mapping", "dependency-analysis", "logistics-tracking", "vendor-relationships", "risk-assessment"],
+    "promptTemplate": "BASE_TEMPLATE",
+    "reportStructureOverrides": {
+      "additionalSections": ["Risk Matrix", "Alternative Sources", "Continuity Planning"]
+    }
+  },
+{
+  "id": "financial-investigation",
+  "name": "Financial Investigation",
+  "description": "Trace financial flows, identify suspicious transactions, and map economic relationships",
+  "discoveryAreas": ["transaction-analysis", "asset-tracing", "beneficial-ownership", "sanctions-screening", "cryptocurrency-tracking"],
+  "promptTemplate": "BASE_TEMPLATE", 
+  "reportStructureOverrides": {
+    "additionalSections": ["Financial Timeline", "Risk Indicators", "Compliance Assessment"]
+  }
+},
+{
+    "id": "geopolitical-analysis",
+    "name": "Geopolitical Analysis",
+    "description": "Assess political stability, international relations, regional security dynamics, and governmental influence",
+    "discoveryAreas": ["political-stability", "diplomatic-relations", "military-presence", "economic-sanctions", "border-security", "governance-structure"],
+    "geographic_scope": ["country", "region", "international"],
+    "promptTemplate": "BASE_TEMPLATE",
+    "reportStructureOverrides": {
+      "additionalSections": ["Political Risk Assessment", "Regional Dynamics", "Stakeholder Mapping", "Conflict Indicators"]
+    }
   }
 ];
-
-    // Discovery Areas Contract
-    const DISCOVERY_AREAS = [
-  {
-    "id": "social-media",
-    "name": "Social Media Presence",
-    "description": "Profiles, posts, connections on Facebook, Twitter, LinkedIn, Instagram, etc.",
-    "applicableTypes": ["person-investigation", "reputation-analysis"],
+        // Discovery Areas Contract
+        const DISCOVERY_AREAS = [
+      {
+        "id": "social-media",
+        "name": "Social Media Presence",
+        "description": "Profiles, posts, connections on Facebook, Twitter, LinkedIn, Instagram, etc.",
+        "applicableTypes": ["person-investigation", "reputation-analysis"],
+        "defaultEnabled": true,
+        "isCustom": false
+      },
+      {
+        "id": "employment-history",
+        "name": "Employment History",
+        "description": "Past and current employers, job titles, career progression",
+        "applicableTypes": ["person-investigation"],
+        "defaultEnabled": true,
+        "isCustom": false
+      },
+      {
+        "id": "job-postings",
+        "name": "Job Postings & Recruitment",
+        "description": "Active job listings, hiring patterns, required skills, compensation ranges",
+        "applicableTypes": ["company-research", "market-intelligence", "technology-profiling", "recruitment-intelligence"],
+        "defaultEnabled": true,
+        "isCustom": false
+      },
+      {
+        "id": "skill-requirements",
+        "name": "Skill Requirements & Technology Stack",
+        "description": "Required skills, technologies, certifications mentioned in job postings",
+        "applicableTypes": ["recruitment-intelligence", "technology-profiling", "market-intelligence"],
+        "defaultEnabled": true,
+        "isCustom": false
+      },
+      {
+        "id": "compensation-analysis",
+        "name": "Compensation & Benefits",
+        "description": "Salary ranges, benefits packages, equity offerings, perks mentioned",
+        "applicableTypes": ["recruitment-intelligence", "company-research"],
+        "defaultEnabled": true,
+        "isCustom": false
+      },
+      {
+        "id": "hiring-volume",
+        "name": "Hiring Volume & Patterns",
+        "description": "Number of openings, hiring frequency, urgency indicators, growth signals",
+        "applicableTypes": ["recruitment-intelligence", "company-research"],
+        "defaultEnabled": true,
+        "isCustom": false
+      },
+      {
+        "id": "organizational-structure",
+        "name": "Organizational Structure",
+        "description": "Team hierarchies, department sizes, reporting structures revealed in job postings",
+        "applicableTypes": ["recruitment-intelligence", "company-research"],
+        "defaultEnabled": true,
+        "isCustom": false
+      },
+      {
+        "id": "cultural-indicators",
+        "name": "Company Culture Signals",
+        "description": "Values, work environment, team structure, management style clues",
+        "applicableTypes": ["recruitment-intelligence", "reputation-analysis"],
+        "defaultEnabled": false,
+        "isCustom": false
+      },
+      {
+        "id": "education",
+        "name": "Education Background",
+        "description": "Schools attended, degrees earned, certifications",
+        "applicableTypes": ["person-investigation"],
+        "defaultEnabled": true,
+        "isCustom": false
+      },
+      {
+        "id": "criminal-records",
+        "name": "Criminal Records",
+        "description": "Arrests, convictions, court cases, legal history",
+        "applicableTypes": ["person-investigation"],
+        "defaultEnabled": false,
+        "isCustom": false
+      },
+      {
+        "id": "financial-records",
+        "name": "Financial Records",
+        "description": "Property ownership, bankruptcies, liens, business registrations",
+        "applicableTypes": ["person-investigation", "company-research", "financial-investigation"],
+        "defaultEnabled": false,
+        "isCustom": false
+      },
+      {
+        "id": "family-connections",
+        "name": "Family & Personal Connections",
+        "description": "Relatives, associates, known relationships",
+        "applicableTypes": ["person-investigation"],
+        "defaultEnabled": true,
+        "isCustom": false
+      },
+      {
+        "id": "corporate-structure",
+        "name": "Corporate Structure",
+        "description": "Subsidiaries, parent companies, ownership hierarchy",
+        "applicableTypes": ["company-research"],
+        "defaultEnabled": true,
+        "isCustom": false
+      },
+      {
+        "id": "financial-health",
+        "name": "Financial Health",
+        "description": "Revenue, profitability, debt, credit ratings",
+        "applicableTypes": ["company-research", "market-intelligence"],
+        "defaultEnabled": true,
+        "isCustom": false
+      },
+      {
+        "id": "key-personnel",
+        "name": "Key Personnel",
+        "description": "Executives, board members, key employees",
+        "applicableTypes": ["company-research"],
+        "defaultEnabled": true,
+        "isCustom": false
+      },
+      {
+        "id": "reputation",
+        "name": "Company Reputation",
+        "description": "Reviews, ratings, customer complaints, industry standing",
+        "applicableTypes": ["company-research", "reputation-analysis"],
+        "defaultEnabled": true,
+        "isCustom": false
+      },
+      {
+        "id": "regulatory-compliance",
+        "name": "Regulatory Compliance",
+        "description": "Licenses, permits, violations, regulatory filings",
+        "applicableTypes": ["company-research", "market-intelligence"],
+        "defaultEnabled": false,
+        "isCustom": false
+      },
+      {
+        "id": "market-position",
+        "name": "Market Position",
+        "description": "Market share, competitive ranking, industry leadership",
+        "applicableTypes": ["company-research", "market-intelligence"],
+        "defaultEnabled": true,
+        "isCustom": false
+      },
+      {
+        "id": "demographics",
+        "name": "Demographics",
+        "description": "Population size, age distribution, income levels, diversity",
+        "applicableTypes": ["location-analysis"],
+        "defaultEnabled": true,
+        "isCustom": false
+      },
+      {
+        "id": "infrastructure",
+        "name": "Infrastructure",
+        "description": "Transportation, utilities, public services, connectivity",
+        "applicableTypes": ["location-analysis"],
+        "defaultEnabled": true,
+        "isCustom": false
+      },
+      {
+        "id": "infrastructure-mapping",
+        "name": "Infrastructure Mapping",
+        "description": "Physical facilities, pipelines, power plants, distribution networks",
+        "applicableTypes": ["energy-sector-analysis", "location-analysis"],
+        "defaultEnabled": true,
+        "isCustom": false
+      },
+      {
+        "id": "environmental-impact",
+        "name": "Environmental Impact",
+        "description": "Environmental assessments, emissions data, sustainability reports",
+        "applicableTypes": ["energy-sector-analysis"],
+        "defaultEnabled": true,
+        "isCustom": false
+      },
+      {
+        "id": "regulatory-filings",
+        "name": "Regulatory Filings",
+        "description": "Government submissions, compliance reports, permit applications",
+        "applicableTypes": ["energy-sector-analysis", "company-research"],
+        "defaultEnabled": true,
+        "isCustom": false
+      },
+      {
+        "id": "production-data",
+        "name": "Production Data",
+        "description": "Output volumes, capacity utilization, performance metrics",
+        "applicableTypes": ["energy-sector-analysis"],
+        "defaultEnabled": true,
+        "isCustom": false
+      },
+      {
+        "id": "supply-contracts",
+        "name": "Supply Contracts",
+        "description": "Supplier agreements, procurement patterns, vendor relationships",
+        "applicableTypes": ["energy-sector-analysis", "supply-chain-analysis"],
+        "defaultEnabled": false,
+        "isCustom": false
+      },
+      {
+        "id": "economic-indicators",
+        "name": "Economic Indicators",
+        "description": "Employment rates, business growth, real estate trends",
+        "applicableTypes": ["location-analysis", "market-intelligence"],
+        "defaultEnabled": true,
+        "isCustom": false
+      },
+      {
+        "id": "safety-crime",
+        "name": "Safety & Crime Statistics",
+        "description": "Crime rates, law enforcement presence, safety rankings",
+        "applicableTypes": ["location-analysis"],
+        "defaultEnabled": false,
+        "isCustom": false
+      },
+      {
+        "id": "points-of-interest",
+        "name": "Points of Interest",
+        "description": "Landmarks, businesses, institutions, notable locations",
+        "applicableTypes": ["location-analysis"],
+        "defaultEnabled": false,
+        "isCustom": false
+      },
+      {
+        "id": "historical-events",
+        "name": "Historical Events",
+        "description": "Significant past events, development history",
+        "applicableTypes": ["location-analysis", "event-investigation"],
+        "defaultEnabled": false,
+        "isCustom": false
+      },
+      {
+        "id": "historical-patterns",
+        "name": "Historical Patterns",
+        "description": "Long-term trends, cyclical behaviors, seasonal variations",
+        "applicableTypes": ["trend-analysis", "market-intelligence"],
+        "defaultEnabled": true,
+        "isCustom": false
+      },
+      {
+        "id": "emerging-signals",
+        "name": "Emerging Signals",
+        "description": "Early indicators, weak signals, novel developments",
+        "applicableTypes": ["trend-analysis", "market-intelligence"],
+        "defaultEnabled": true,
+        "isCustom": false
+      },
+      {
+        "id": "sentiment-trends",
+        "name": "Sentiment Trends",
+        "description": "Opinion shifts, sentiment analysis over time, mood indicators",
+        "applicableTypes": ["trend-analysis", "reputation-analysis"],
+        "defaultEnabled": true,
+        "isCustom": false
+      },
+      {
+        "id": "volume-analysis",
+        "name": "Volume Analysis",
+        "description": "Activity levels, posting frequency, engagement metrics over time",
+        "applicableTypes": ["trend-analysis"],
+        "defaultEnabled": true,
+        "isCustom": false
+      },
+      {
+        "id": "predictive-indicators",
+        "name": "Predictive Indicators",
+        "description": "Leading indicators, correlation patterns, forecasting signals",
+        "applicableTypes": ["trend-analysis"],
+        "defaultEnabled": false,
+        "isCustom": false
+      },
+      {
+        "id": "model-architecture",
+        "name": "Model Architecture",
+        "description": "AI model design, neural network structures, algorithmic approaches",
+        "applicableTypes": ["ai-system-analysis", "technology-profiling"],
+        "defaultEnabled": true,
+        "isCustom": false
+      },
+      {
+        "id": "training-datasets",
+        "name": "Training Datasets",
+        "description": "Data sources used for training, dataset characteristics, data quality",
+        "applicableTypes": ["ai-system-analysis"],
+        "defaultEnabled": true,
+        "isCustom": false
+      },
+      {
+        "id": "bias-assessment",
+        "name": "Bias Assessment",
+        "description": "Algorithmic bias, fairness metrics, discrimination potential",
+        "applicableTypes": ["ai-system-analysis"],
+        "defaultEnabled": true,
+        "isCustom": false
+      },
+      {
+        "id": "performance-metrics",
+        "name": "Performance Metrics",
+        "description": "Accuracy rates, benchmark results, performance evaluations",
+        "applicableTypes": ["ai-system-analysis", "technology-profiling"],
+        "defaultEnabled": true,
+        "isCustom": false
+      },
+      {
+        "id": "ethical-compliance",
+        "name": "Ethical Compliance",
+        "description": "AI ethics frameworks, responsible AI practices, governance",
+        "applicableTypes": ["ai-system-analysis"],
+        "defaultEnabled": false,
+        "isCustom": false
+      },
+      {
+        "id": "platform-correlation",
+        "name": "Platform Correlation",
+        "description": "Cross-platform identity matching, account linkage, activity correlation",
+        "applicableTypes": ["cross-platform-investigation", "person-investigation"],
+        "defaultEnabled": true,
+        "isCustom": false
+      },
+      {
+        "id": "identity-linkage",
+        "name": "Identity Linkage",
+        "description": "Username patterns, profile similarities, behavioral fingerprints",
+        "applicableTypes": ["cross-platform-investigation", "person-investigation"],
+        "defaultEnabled": true,
+        "isCustom": false
+      },
+      {
+        "id": "temporal-synchronization",
+        "name": "Temporal Synchronization",
+        "description": "Timeline correlation across platforms, synchronized activities",
+        "applicableTypes": ["cross-platform-investigation", "event-investigation"],
+        "defaultEnabled": true,
+        "isCustom": false
+      },
+      {
+        "id": "source-validation",
+        "name": "Source Validation",
+        "description": "Cross-reference verification, source credibility assessment",
+        "applicableTypes": ["cross-platform-investigation"],
+        "defaultEnabled": true,
+        "isCustom": false
+      },
+      {
+        "id": "pattern-matching",
+        "name": "Pattern Matching",
+        "description": "Behavioral patterns, communication styles, activity signatures",
+        "applicableTypes": ["cross-platform-investigation", "person-investigation"],
+        "defaultEnabled": false,
+        "isCustom": false
+      },
+      {
+        "id": "tech-stack",
+        "name": "Technology Stack",
+        "description": "Languages, frameworks, platforms, tools used",
+        "applicableTypes": ["technology-profiling"],
+        "defaultEnabled": true,
+        "isCustom": false
+      },
+      {
+        "id": "digital-infrastructure",
+        "name": "Digital Infrastructure",
+        "description": "Servers, cloud services, DNS, hosting",
+        "applicableTypes": ["technology-profiling"],
+        "defaultEnabled": true,
+        "isCustom": false
+      },
+      {
+        "id": "code-repositories",
+        "name": "Code Repositories",
+        "description": "GitHub, GitLab, open-source projects",
+        "applicableTypes": ["technology-profiling"],
+        "defaultEnabled": true,
+        "isCustom": false
+      },
+      {
+        "id": "security-posture",
+        "name": "Security Posture",
+        "description": "SSL/TLS, security headers, vulnerability reports",
+        "applicableTypes": ["technology-profiling"],
+        "defaultEnabled": true,
+        "isCustom": false
+      },
+      {
+        "id": "patents-publications",
+        "name": "Patents & Publications",
+        "description": "Intellectual property, research papers, technical blogs",
+        "applicableTypes": ["technology-profiling"],
+        "defaultEnabled": false,
+        "isCustom": false
+      },
+      {
+        "id": "market-trends",
+        "name": "Market Trends",
+        "description": "Industry direction, emerging opportunities, shifts",
+        "applicableTypes": ["market-intelligence"],
+        "defaultEnabled": true,
+        "isCustom": false
+      },
+      {
+        "id": "competitor-analysis",
+        "name": "Competitor Analysis",
+        "description": "Competitive positioning, strengths, weaknesses",
+        "applicableTypes": ["market-intelligence"],
+        "defaultEnabled": true,
+        "isCustom": false
+      },
+      {
+        "id": "customer-sentiment",
+        "name": "Customer Sentiment",
+        "description": "Reviews, feedback, satisfaction scores",
+        "applicableTypes": ["market-intelligence", "reputation-analysis"],
+        "defaultEnabled": true,
+        "isCustom": false
+      },
+      {
+        "id": "pricing-strategies",
+        "name": "Pricing Strategies",
+        "description": "Pricing models, competitor pricing, value proposition",
+        "applicableTypes": ["market-intelligence"],
+        "defaultEnabled": false,
+        "isCustom": false
+      },
+      {
+        "id": "regulatory-landscape",
+        "name": "Regulatory Landscape",
+        "description": "Industry regulations, compliance requirements",
+        "applicableTypes": ["market-intelligence"],
+        "defaultEnabled": false,
+        "isCustom": false
+      },
+      {
+        "id": "media-coverage",
+        "name": "Media Coverage",
+        "description": "News articles, press releases, media mentions",
+        "applicableTypes": ["reputation-analysis", "event-investigation"],
+        "defaultEnabled": true,
+        "isCustom": false
+      },
+      {
+        "id": "social-sentiment",
+        "name": "Social Media Sentiment",
+        "description": "Public opinion, trending topics, sentiment analysis",
+        "applicableTypes": ["reputation-analysis"],
+        "defaultEnabled": true,
+        "isCustom": false
+      },
+      {
+        "id": "reviews-ratings",
+        "name": "Reviews & Ratings",
+        "description": "Customer reviews, ratings, testimonials",
+        "applicableTypes": ["reputation-analysis"],
+        "defaultEnabled": true,
+        "isCustom": false
+      },
+      {
+        "id": "controversies",
+        "name": "Controversies",
+        "description": "Scandals, disputes, negative publicity",
+        "applicableTypes": ["reputation-analysis"],
+        "defaultEnabled": false,
+        "isCustom": false
+      },
+      {
+        "id": "brand-associations",
+        "name": "Brand Associations",
+        "description": "Partnerships, sponsorships, affiliated brands",
+        "applicableTypes": ["reputation-analysis"],
+        "defaultEnabled": false,
+        "isCustom": false
+      },
+      {
+        "id": "timeline-reconstruction",
+        "name": "Timeline Reconstruction",
+        "description": "Chronological sequence of events",
+        "applicableTypes": ["event-investigation"],
+        "defaultEnabled": true,
+        "isCustom": false
+      },
+      {
+        "id": "participants",
+        "name": "Event Participants",
+        "description": "Individuals, organizations involved",
+        "applicableTypes": ["event-investigation"],
+        "defaultEnabled": true,
+        "isCustom": false
+      },
+      {
+        "id": "location-context",
+        "name": "Location Context",
+        "description": "Where the event occurred, geographic significance",
+        "applicableTypes": ["event-investigation"],
+        "defaultEnabled": true,
+        "isCustom": false
+      },
+      {
+        "id": "media-reports",
+        "name": "Media Reports",
+        "description": "News coverage, eyewitness accounts",
+        "applicableTypes": ["event-investigation"],
+        "defaultEnabled": true,
+        "isCustom": false
+      },
+      {
+        "id": "witness-accounts",
+        "name": "Witness Accounts",
+        "description": "First-hand testimonies, statements",
+        "applicableTypes": ["event-investigation"],
+        "defaultEnabled": false,
+        "isCustom": false
+      },
+      {
+        "id": "file-metadata",
+        "name": "File Metadata",
+        "description": "EXIF data, creation timestamps, authorship information",
+        "applicableTypes": ["digital-forensics", "event-investigation"],
+        "defaultEnabled": true,
+        "isCustom": false
+      },
+      {
+        "id": "communication-traces",
+        "name": "Communication Traces",
+        "description": "Email headers, message routing, communication patterns",
+        "applicableTypes": ["digital-forensics", "person-investigation"],
+        "defaultEnabled": true,
+        "isCustom": false
+      },
+      {
+        "id": "device-fingerprints",
+        "name": "Device Fingerprints",
+        "description": "Hardware signatures, browser fingerprints, device characteristics",
+        "applicableTypes": ["digital-forensics", "technology-profiling"],
+        "defaultEnabled": true,
+        "isCustom": false
+      },
+      {
+        "id": "network-artifacts",
+        "name": "Network Artifacts",
+        "description": "IP addresses, network logs, connection patterns",
+        "applicableTypes": ["digital-forensics", "technology-profiling"],
+        "defaultEnabled": true,
+        "isCustom": false
+      },
+      {
+        "id": "deleted-data-recovery",
+        "name": "Deleted Data Recovery",
+        "description": "Cached content, archived versions, recoverable information",
+        "applicableTypes": ["digital-forensics"],
+        "defaultEnabled": false,
+        "isCustom": false
+      },
+      {
+        "id": "supplier-mapping",
+        "name": "Supplier Mapping",
+        "description": "Vendor networks, supplier hierarchies, dependency chains",
+        "applicableTypes": ["supply-chain-analysis", "company-research"],
+        "defaultEnabled": true,
+        "isCustom": false
+      },
+      {
+        "id": "dependency-analysis",
+        "name": "Dependency Analysis",
+        "description": "Critical dependencies, single points of failure, risk concentrations",
+        "applicableTypes": ["supply-chain-analysis"],
+        "defaultEnabled": true,
+        "isCustom": false
+      },
+      {
+        "id": "logistics-tracking",
+        "name": "Logistics Tracking",
+        "description": "Shipping patterns, transportation routes, delivery networks",
+        "applicableTypes": ["supply-chain-analysis", "location-analysis"],
+        "defaultEnabled": true,
+        "isCustom": false
+      },
+      {
+        "id": "vendor-relationships",
+        "name": "Vendor Relationships",
+        "description": "Supplier partnerships, contract terms, relationship quality",
+        "applicableTypes": ["supply-chain-analysis", "company-research"],
+        "defaultEnabled": true,
+        "isCustom": false
+      },
+      {
+        "id": "risk-assessment",
+        "name": "Risk Assessment",
+        "description": "Supply chain vulnerabilities, disruption risks, mitigation strategies",
+        "applicableTypes": ["supply-chain-analysis"],
+        "defaultEnabled": false,
+        "isCustom": false
+      },
+      {
+        "id": "transaction-analysis",
+        "name": "Transaction Analysis",
+        "description": "Financial flows, payment patterns, money movement tracking",
+        "applicableTypes": ["financial-investigation", "person-investigation"],
+        "defaultEnabled": true,
+        "isCustom": false
+      },
+      {
+        "id": "asset-tracing",
+        "name": "Asset Tracing",
+        "description": "Property ownership, asset transfers, wealth accumulation",
+        "applicableTypes": ["financial-investigation", "person-investigation"],
+        "defaultEnabled": true,
+        "isCustom": false
+      },
+      {
+        "id": "beneficial-ownership",
+        "name": "Beneficial Ownership",
+        "description": "Ultimate ownership structures, shell companies, hidden controllers",
+        "applicableTypes": ["financial-investigation", "company-research"],
+        "defaultEnabled": true,
+        "isCustom": false
+      },
+      {
+        "id": "sanctions-screening",
+        "name": "Sanctions Screening",
+        "description": "Sanctioned entities, restricted parties, compliance violations",
+        "applicableTypes": ["financial-investigation", "company-research"],
+        "defaultEnabled": true,
+        "isCustom": false
+      },
+      {
+        "id": "cryptocurrency-tracking",
+        "name": "Cryptocurrency Tracking",
+        "description": "Blockchain transactions, wallet addresses, crypto asset flows",
+        "applicableTypes": ["financial-investigation"],
+        "defaultEnabled": false,
+        "isCustom": false
+      },
+        {
+    "id": "political-stability",
+    "name": "Political Stability",
+    "description": "Government stability, election integrity, political transitions, regime legitimacy",
+    "applicableTypes": ["geopolitical-analysis", "location-analysis"],
     "defaultEnabled": true,
     "isCustom": false
   },
   {
-    "id": "employment-history",
-    "name": "Employment History",
-    "description": "Past and current employers, job titles, career progression",
-    "applicableTypes": ["person-investigation"],
+    "id": "diplomatic-relations",
+    "name": "Diplomatic Relations",
+    "description": "International partnerships, treaties, embassies, diplomatic incidents",
+    "applicableTypes": ["geopolitical-analysis"],
     "defaultEnabled": true,
     "isCustom": false
   },
   {
-    "id": "education",
-    "name": "Education Background",
-    "description": "Schools attended, degrees earned, certifications",
-    "applicableTypes": ["person-investigation"],
+    "id": "military-presence",
+    "name": "Military Presence",
+    "description": "Armed forces deployment, defense capabilities, military exercises, security apparatus",
+    "applicableTypes": ["geopolitical-analysis", "location-analysis"],
     "defaultEnabled": true,
     "isCustom": false
   },
   {
-    "id": "criminal-records",
-    "name": "Criminal Records",
-    "description": "Arrests, convictions, court cases, legal history",
-    "applicableTypes": ["person-investigation", "threat-assessment"],
+    "id": "economic-sanctions",
+    "name": "Economic Sanctions",
+    "description": "Trade restrictions, financial sanctions, embargoes, international compliance",
+    "applicableTypes": ["geopolitical-analysis", "financial-investigation"],
+    "defaultEnabled": true,
+    "isCustom": false
+  },
+  {
+    "id": "border-security",
+    "name": "Border Security",
+    "description": "Border controls, migration patterns, customs enforcement, territorial disputes",
+    "applicableTypes": ["geopolitical-analysis", "location-analysis"],
     "defaultEnabled": false,
     "isCustom": false
   },
   {
-    "id": "financial-records",
-    "name": "Financial Records",
-    "description": "Property ownership, bankruptcies, liens, business registrations",
-    "applicableTypes": ["person-investigation", "company-research"],
-    "defaultEnabled": false,
-    "isCustom": false
-  },
-  {
-    "id": "family-connections",
-    "name": "Family & Personal Connections",
-    "description": "Relatives, associates, known relationships",
-    "applicableTypes": ["person-investigation"],
+    "id": "governance-structure",
+    "name": "Governance Structure",
+    "description": "Government institutions, policy frameworks, regulatory systems, administrative capacity",
+    "applicableTypes": ["geopolitical-analysis"],
     "defaultEnabled": true,
-    "isCustom": false
-  },
-  {
-    "id": "corporate-structure",
-    "name": "Corporate Structure",
-    "description": "Subsidiaries, parent companies, ownership hierarchy",
-    "applicableTypes": ["company-research"],
-    "defaultEnabled": true,
-    "isCustom": false
-  },
-  {
-    "id": "financial-health",
-    "name": "Financial Health",
-    "description": "Revenue, profitability, debt, credit ratings",
-    "applicableTypes": ["company-research", "market-intelligence"],
-    "defaultEnabled": true,
-    "isCustom": false
-  },
-  {
-    "id": "key-personnel",
-    "name": "Key Personnel",
-    "description": "Executives, board members, key employees",
-    "applicableTypes": ["company-research"],
-    "defaultEnabled": true,
-    "isCustom": false
-  },
-  {
-    "id": "reputation",
-    "name": "Company Reputation",
-    "description": "Reviews, ratings, customer complaints, industry standing",
-    "applicableTypes": ["company-research", "reputation-analysis"],
-    "defaultEnabled": true,
-    "isCustom": false
-  },
-  {
-    "id": "regulatory-compliance",
-    "name": "Regulatory Compliance",
-    "description": "Licenses, permits, violations, regulatory filings",
-    "applicableTypes": ["company-research", "market-intelligence"],
-    "defaultEnabled": false,
-    "isCustom": false
-  },
-  {
-    "id": "market-position",
-    "name": "Market Position",
-    "description": "Market share, competitive ranking, industry leadership",
-    "applicableTypes": ["company-research", "market-intelligence"],
-    "defaultEnabled": true,
-    "isCustom": false
-  },
-  {
-    "id": "demographics",
-    "name": "Demographics",
-    "description": "Population size, age distribution, income levels, diversity",
-    "applicableTypes": ["location-analysis"],
-    "defaultEnabled": true,
-    "isCustom": false
-  },
-  {
-    "id": "infrastructure",
-    "name": "Infrastructure",
-    "description": "Transportation, utilities, public services, connectivity",
-    "applicableTypes": ["location-analysis"],
-    "defaultEnabled": true,
-    "isCustom": false
-  },
-  {
-    "id": "economic-indicators",
-    "name": "Economic Indicators",
-    "description": "Employment rates, business growth, real estate trends",
-    "applicableTypes": ["location-analysis", "market-intelligence"],
-    "defaultEnabled": true,
-    "isCustom": false
-  },
-  {
-    "id": "safety-crime",
-    "name": "Safety & Crime Statistics",
-    "description": "Crime rates, law enforcement presence, safety rankings",
-    "applicableTypes": ["location-analysis"],
-    "defaultEnabled": false,
-    "isCustom": false
-  },
-  {
-    "id": "points-of-interest",
-    "name": "Points of Interest",
-    "description": "Landmarks, businesses, institutions, notable locations",
-    "applicableTypes": ["location-analysis"],
-    "defaultEnabled": false,
-    "isCustom": false
-  },
-  {
-    "id": "historical-events",
-    "name": "Historical Events",
-    "description": "Significant past events, development history",
-    "applicableTypes": ["location-analysis", "event-investigation"],
-    "defaultEnabled": false,
-    "isCustom": false
-  },
-  {
-    "id": "threat-actors",
-    "name": "Threat Actors",
-    "description": "Known adversaries, hacker groups, malicious entities",
-    "applicableTypes": ["threat-assessment"],
-    "defaultEnabled": true,
-    "isCustom": false
-  },
-  {
-    "id": "attack-vectors",
-    "name": "Attack Vectors",
-    "description": "Common attack methods, entry points, tactics",
-    "applicableTypes": ["threat-assessment"],
-    "defaultEnabled": true,
-    "isCustom": false
-  },
-  {
-    "id": "vulnerabilities",
-    "name": "Vulnerabilities",
-    "description": "Known weaknesses, security gaps, exploitable flaws",
-    "applicableTypes": ["threat-assessment", "technology-profiling"],
-    "defaultEnabled": true,
-    "isCustom": false
-  },
-  {
-    "id": "historical-incidents",
-    "name": "Historical Incidents",
-    "description": "Past security breaches, attacks, incidents",
-    "applicableTypes": ["threat-assessment"],
-    "defaultEnabled": true,
-    "isCustom": false
-  },
-  {
-    "id": "indicators-of-compromise",
-    "name": "Indicators of Compromise",
-    "description": "IPs, domains, hashes, patterns suggesting threats",
-    "applicableTypes": ["threat-assessment"],
-    "defaultEnabled": false,
-    "isCustom": false
-  },
-  {
-    "id": "tech-stack",
-    "name": "Technology Stack",
-    "description": "Languages, frameworks, platforms, tools used",
-    "applicableTypes": ["technology-profiling"],
-    "defaultEnabled": true,
-    "isCustom": false
-  },
-  {
-    "id": "digital-infrastructure",
-    "name": "Digital Infrastructure",
-    "description": "Servers, cloud services, DNS, hosting",
-    "applicableTypes": ["technology-profiling"],
-    "defaultEnabled": true,
-    "isCustom": false
-  },
-  {
-    "id": "code-repositories",
-    "name": "Code Repositories",
-    "description": "GitHub, GitLab, open-source projects",
-    "applicableTypes": ["technology-profiling"],
-    "defaultEnabled": true,
-    "isCustom": false
-  },
-  {
-    "id": "security-posture",
-    "name": "Security Posture",
-    "description": "SSL/TLS, security headers, vulnerability reports",
-    "applicableTypes": ["technology-profiling", "threat-assessment"],
-    "defaultEnabled": true,
-    "isCustom": false
-  },
-  {
-    "id": "patents-publications",
-    "name": "Patents & Publications",
-    "description": "Intellectual property, research papers, technical blogs",
-    "applicableTypes": ["technology-profiling"],
-    "defaultEnabled": false,
-    "isCustom": false
-  },
-  {
-    "id": "market-trends",
-    "name": "Market Trends",
-    "description": "Industry direction, emerging opportunities, shifts",
-    "applicableTypes": ["market-intelligence"],
-    "defaultEnabled": true,
-    "isCustom": false
-  },
-  {
-    "id": "competitor-analysis",
-    "name": "Competitor Analysis",
-    "description": "Competitive positioning, strengths, weaknesses",
-    "applicableTypes": ["market-intelligence"],
-    "defaultEnabled": true,
-    "isCustom": false
-  },
-  {
-    "id": "customer-sentiment",
-    "name": "Customer Sentiment",
-    "description": "Reviews, feedback, satisfaction scores",
-    "applicableTypes": ["market-intelligence", "reputation-analysis"],
-    "defaultEnabled": true,
-    "isCustom": false
-  },
-  {
-    "id": "pricing-strategies",
-    "name": "Pricing Strategies",
-    "description": "Pricing models, competitor pricing, value proposition",
-    "applicableTypes": ["market-intelligence"],
-    "defaultEnabled": false,
-    "isCustom": false
-  },
-  {
-    "id": "regulatory-landscape",
-    "name": "Regulatory Landscape",
-    "description": "Industry regulations, compliance requirements",
-    "applicableTypes": ["market-intelligence"],
-    "defaultEnabled": false,
-    "isCustom": false
-  },
-  {
-    "id": "media-coverage",
-    "name": "Media Coverage",
-    "description": "News articles, press releases, media mentions",
-    "applicableTypes": ["reputation-analysis", "event-investigation"],
-    "defaultEnabled": true,
-    "isCustom": false
-  },
-  {
-    "id": "social-sentiment",
-    "name": "Social Media Sentiment",
-    "description": "Public opinion, trending topics, sentiment analysis",
-    "applicableTypes": ["reputation-analysis"],
-    "defaultEnabled": true,
-    "isCustom": false
-  },
-  {
-    "id": "reviews-ratings",
-    "name": "Reviews & Ratings",
-    "description": "Customer reviews, ratings, testimonials",
-    "applicableTypes": ["reputation-analysis"],
-    "defaultEnabled": true,
-    "isCustom": false
-  },
-  {
-    "id": "controversies",
-    "name": "Controversies",
-    "description": "Scandals, disputes, negative publicity",
-    "applicableTypes": ["reputation-analysis"],
-    "defaultEnabled": false,
-    "isCustom": false
-  },
-  {
-    "id": "brand-associations",
-    "name": "Brand Associations",
-    "description": "Partnerships, sponsorships, affiliated brands",
-    "applicableTypes": ["reputation-analysis"],
-    "defaultEnabled": false,
-    "isCustom": false
-  },
-  {
-    "id": "timeline-reconstruction",
-    "name": "Timeline Reconstruction",
-    "description": "Chronological sequence of events",
-    "applicableTypes": ["event-investigation"],
-    "defaultEnabled": true,
-    "isCustom": false
-  },
-  {
-    "id": "participants",
-    "name": "Event Participants",
-    "description": "Individuals, organizations involved",
-    "applicableTypes": ["event-investigation"],
-    "defaultEnabled": true,
-    "isCustom": false
-  },
-  {
-    "id": "location-context",
-    "name": "Location Context",
-    "description": "Where the event occurred, geographic significance",
-    "applicableTypes": ["event-investigation"],
-    "defaultEnabled": true,
-    "isCustom": false
-  },
-  {
-    "id": "media-reports",
-    "name": "Media Reports",
-    "description": "News coverage, eyewitness accounts",
-    "applicableTypes": ["event-investigation"],
-    "defaultEnabled": true,
-    "isCustom": false
-  },
-  {
-    "id": "witness-accounts",
-    "name": "Witness Accounts",
-    "description": "First-hand testimonies, statements",
-    "applicableTypes": ["event-investigation"],
-    "defaultEnabled": false,
     "isCustom": false
   }
-];
-
+    ];
     // Prompt Templates Contract
     const PROMPT_TEMPLATES = {
   "baseTemplate": {
