@@ -1,0 +1,346 @@
+[
+  {
+    "id": "social-media",
+    "name": "Social Media Presence",
+    "description": "Profiles, posts, connections on Facebook, Twitter, LinkedIn, Instagram, etc.",
+    "applicableTypes": ["person-investigation", "reputation-analysis"],
+    "defaultEnabled": true,
+    "isCustom": false
+  },
+  {
+    "id": "employment-history",
+    "name": "Employment History",
+    "description": "Past and current employers, job titles, career progression",
+    "applicableTypes": ["person-investigation"],
+    "defaultEnabled": true,
+    "isCustom": false
+  },
+  {
+    "id": "education",
+    "name": "Education Background",
+    "description": "Schools attended, degrees earned, certifications",
+    "applicableTypes": ["person-investigation"],
+    "defaultEnabled": true,
+    "isCustom": false
+  },
+  {
+    "id": "criminal-records",
+    "name": "Criminal Records",
+    "description": "Arrests, convictions, court cases, legal history",
+    "applicableTypes": ["person-investigation", "threat-assessment"],
+    "defaultEnabled": false,
+    "isCustom": false
+  },
+  {
+    "id": "financial-records",
+    "name": "Financial Records",
+    "description": "Property ownership, bankruptcies, liens, business registrations",
+    "applicableTypes": ["person-investigation", "company-research"],
+    "defaultEnabled": false,
+    "isCustom": false
+  },
+  {
+    "id": "family-connections",
+    "name": "Family & Personal Connections",
+    "description": "Relatives, associates, known relationships",
+    "applicableTypes": ["person-investigation"],
+    "defaultEnabled": true,
+    "isCustom": false
+  },
+  {
+    "id": "corporate-structure",
+    "name": "Corporate Structure",
+    "description": "Subsidiaries, parent companies, ownership hierarchy",
+    "applicableTypes": ["company-research"],
+    "defaultEnabled": true,
+    "isCustom": false
+  },
+  {
+    "id": "financial-health",
+    "name": "Financial Health",
+    "description": "Revenue, profitability, debt, credit ratings",
+    "applicableTypes": ["company-research", "market-intelligence"],
+    "defaultEnabled": true,
+    "isCustom": false
+  },
+  {
+    "id": "key-personnel",
+    "name": "Key Personnel",
+    "description": "Executives, board members, key employees",
+    "applicableTypes": ["company-research"],
+    "defaultEnabled": true,
+    "isCustom": false
+  },
+  {
+    "id": "reputation",
+    "name": "Company Reputation",
+    "description": "Reviews, ratings, customer complaints, industry standing",
+    "applicableTypes": ["company-research", "reputation-analysis"],
+    "defaultEnabled": true,
+    "isCustom": false
+  },
+  {
+    "id": "regulatory-compliance",
+    "name": "Regulatory Compliance",
+    "description": "Licenses, permits, violations, regulatory filings",
+    "applicableTypes": ["company-research", "market-intelligence"],
+    "defaultEnabled": false,
+    "isCustom": false
+  },
+  {
+    "id": "market-position",
+    "name": "Market Position",
+    "description": "Market share, competitive ranking, industry leadership",
+    "applicableTypes": ["company-research", "market-intelligence"],
+    "defaultEnabled": true,
+    "isCustom": false
+  },
+  {
+    "id": "demographics",
+    "name": "Demographics",
+    "description": "Population size, age distribution, income levels, diversity",
+    "applicableTypes": ["location-analysis"],
+    "defaultEnabled": true,
+    "isCustom": false
+  },
+  {
+    "id": "infrastructure",
+    "name": "Infrastructure",
+    "description": "Transportation, utilities, public services, connectivity",
+    "applicableTypes": ["location-analysis"],
+    "defaultEnabled": true,
+    "isCustom": false
+  },
+  {
+    "id": "economic-indicators",
+    "name": "Economic Indicators",
+    "description": "Employment rates, business growth, real estate trends",
+    "applicableTypes": ["location-analysis", "market-intelligence"],
+    "defaultEnabled": true,
+    "isCustom": false
+  },
+  {
+    "id": "safety-crime",
+    "name": "Safety & Crime Statistics",
+    "description": "Crime rates, law enforcement presence, safety rankings",
+    "applicableTypes": ["location-analysis"],
+    "defaultEnabled": false,
+    "isCustom": false
+  },
+  {
+    "id": "points-of-interest",
+    "name": "Points of Interest",
+    "description": "Landmarks, businesses, institutions, notable locations",
+    "applicableTypes": ["location-analysis"],
+    "defaultEnabled": false,
+    "isCustom": false
+  },
+  {
+    "id": "historical-events",
+    "name": "Historical Events",
+    "description": "Significant past events, development history",
+    "applicableTypes": ["location-analysis", "event-investigation"],
+    "defaultEnabled": false,
+    "isCustom": false
+  },
+  {
+    "id": "threat-actors",
+    "name": "Threat Actors",
+    "description": "Known adversaries, hacker groups, malicious entities",
+    "applicableTypes": ["threat-assessment"],
+    "defaultEnabled": true,
+    "isCustom": false
+  },
+  {
+    "id": "attack-vectors",
+    "name": "Attack Vectors",
+    "description": "Common attack methods, entry points, tactics",
+    "applicableTypes": ["threat-assessment"],
+    "defaultEnabled": true,
+    "isCustom": false
+  },
+  {
+    "id": "vulnerabilities",
+    "name": "Vulnerabilities",
+    "description": "Known weaknesses, security gaps, exploitable flaws",
+    "applicableTypes": ["threat-assessment", "technology-profiling"],
+    "defaultEnabled": true,
+    "isCustom": false
+  },
+  {
+    "id": "historical-incidents",
+    "name": "Historical Incidents",
+    "description": "Past security breaches, attacks, incidents",
+    "applicableTypes": ["threat-assessment"],
+    "defaultEnabled": true,
+    "isCustom": false
+  },
+  {
+    "id": "indicators-of-compromise",
+    "name": "Indicators of Compromise",
+    "description": "IPs, domains, hashes, patterns suggesting threats",
+    "applicableTypes": ["threat-assessment"],
+    "defaultEnabled": false,
+    "isCustom": false
+  },
+  {
+    "id": "tech-stack",
+    "name": "Technology Stack",
+    "description": "Languages, frameworks, platforms, tools used",
+    "applicableTypes": ["technology-profiling"],
+    "defaultEnabled": true,
+    "isCustom": false
+  },
+  {
+    "id": "digital-infrastructure",
+    "name": "Digital Infrastructure",
+    "description": "Servers, cloud services, DNS, hosting",
+    "applicableTypes": ["technology-profiling"],
+    "defaultEnabled": true,
+    "isCustom": false
+  },
+  {
+    "id": "code-repositories",
+    "name": "Code Repositories",
+    "description": "GitHub, GitLab, open-source projects",
+    "applicableTypes": ["technology-profiling"],
+    "defaultEnabled": true,
+    "isCustom": false
+  },
+  {
+    "id": "security-posture",
+    "name": "Security Posture",
+    "description": "SSL/TLS, security headers, vulnerability reports",
+    "applicableTypes": ["technology-profiling", "threat-assessment"],
+    "defaultEnabled": true,
+    "isCustom": false
+  },
+  {
+    "id": "patents-publications",
+    "name": "Patents & Publications",
+    "description": "Intellectual property, research papers, technical blogs",
+    "applicableTypes": ["technology-profiling"],
+    "defaultEnabled": false,
+    "isCustom": false
+  },
+  {
+    "id": "market-trends",
+    "name": "Market Trends",
+    "description": "Industry direction, emerging opportunities, shifts",
+    "applicableTypes": ["market-intelligence"],
+    "defaultEnabled": true,
+    "isCustom": false
+  },
+  {
+    "id": "competitor-analysis",
+    "name": "Competitor Analysis",
+    "description": "Competitive positioning, strengths, weaknesses",
+    "applicableTypes": ["market-intelligence"],
+    "defaultEnabled": true,
+    "isCustom": false
+  },
+  {
+    "id": "customer-sentiment",
+    "name": "Customer Sentiment",
+    "description": "Reviews, feedback, satisfaction scores",
+    "applicableTypes": ["market-intelligence", "reputation-analysis"],
+    "defaultEnabled": true,
+    "isCustom": false
+  },
+  {
+    "id": "pricing-strategies",
+    "name": "Pricing Strategies",
+    "description": "Pricing models, competitor pricing, value proposition",
+    "applicableTypes": ["market-intelligence"],
+    "defaultEnabled": false,
+    "isCustom": false
+  },
+  {
+    "id": "regulatory-landscape",
+    "name": "Regulatory Landscape",
+    "description": "Industry regulations, compliance requirements",
+    "applicableTypes": ["market-intelligence"],
+    "defaultEnabled": false,
+    "isCustom": false
+  },
+  {
+    "id": "media-coverage",
+    "name": "Media Coverage",
+    "description": "News articles, press releases, media mentions",
+    "applicableTypes": ["reputation-analysis", "event-investigation"],
+    "defaultEnabled": true,
+    "isCustom": false
+  },
+  {
+    "id": "social-sentiment",
+    "name": "Social Media Sentiment",
+    "description": "Public opinion, trending topics, sentiment analysis",
+    "applicableTypes": ["reputation-analysis"],
+    "defaultEnabled": true,
+    "isCustom": false
+  },
+  {
+    "id": "reviews-ratings",
+    "name": "Reviews & Ratings",
+    "description": "Customer reviews, ratings, testimonials",
+    "applicableTypes": ["reputation-analysis"],
+    "defaultEnabled": true,
+    "isCustom": false
+  },
+  {
+    "id": "controversies",
+    "name": "Controversies",
+    "description": "Scandals, disputes, negative publicity",
+    "applicableTypes": ["reputation-analysis"],
+    "defaultEnabled": false,
+    "isCustom": false
+  },
+  {
+    "id": "brand-associations",
+    "name": "Brand Associations",
+    "description": "Partnerships, sponsorships, affiliated brands",
+    "applicableTypes": ["reputation-analysis"],
+    "defaultEnabled": false,
+    "isCustom": false
+  },
+  {
+    "id": "timeline-reconstruction",
+    "name": "Timeline Reconstruction",
+    "description": "Chronological sequence of events",
+    "applicableTypes": ["event-investigation"],
+    "defaultEnabled": true,
+    "isCustom": false
+  },
+  {
+    "id": "participants",
+    "name": "Event Participants",
+    "description": "Individuals, organizations involved",
+    "applicableTypes": ["event-investigation"],
+    "defaultEnabled": true,
+    "isCustom": false
+  },
+  {
+    "id": "location-context",
+    "name": "Location Context",
+    "description": "Where the event occurred, geographic significance",
+    "applicableTypes": ["event-investigation"],
+    "defaultEnabled": true,
+    "isCustom": false
+  },
+  {
+    "id": "media-reports",
+    "name": "Media Reports",
+    "description": "News coverage, eyewitness accounts",
+    "applicableTypes": ["event-investigation"],
+    "defaultEnabled": true,
+    "isCustom": false
+  },
+  {
+    "id": "witness-accounts",
+    "name": "Witness Accounts",
+    "description": "First-hand testimonies, statements",
+    "applicableTypes": ["event-investigation"],
+    "defaultEnabled": false,
+    "isCustom": false
+  }
+]

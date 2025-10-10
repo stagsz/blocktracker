@@ -1,0 +1,339 @@
+  <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OSINT 2.1 Intelligence Prompt Generator</title>
+
+  <!-- STYLES: T012-T013 -->
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <!-- MAIN CONTAINER: T003 -->
+  <main>
+    <div class="container">
+      <h1>OSINT Intelligence Prompt Generator</h1>
+      <p class="subtitle">Professional OSINT analysis made simple - generate AI-ready intelligence prompts in under 60 seconds</p>
+
+     <div class="features">
+      <div class="feature-item">
+        <strong>16 Intelligence Types</strong>
+          <p>Person, Company, Location, Recruitment, Energy, Technology, Market, Trend, AI, Cross-Platform, Reputation, Event, Digital Forensics, Supply Chain, Financial & Geopolitical investigations</p>
+      </div>
+        <div class="feature-item">
+          <strong>4-Phase OSINT Methodology</strong>
+          <p>Discovery → Signals → Insights → Receipts for professional intelligence reports</p>
+        </div>
+        <div class="feature-item">
+          <strong>Reusable Templates</strong>
+          <p>Save investigation configurations and load them instantly for recurring analysis</p>
+        </div>
+      </div>
+
+      <div class="main-actions">
+        <button id="new-prompt-btn" class="btn btn-primary">New Prompt</button>
+        <button id="load-template-btn" class="btn btn-secondary">Load Template</button>
+      </div>
+
+      <div class="osint-explanation">
+        <h3>What is OSINT?</h3>
+        <p>OSINT stands for Open Source Intelligence, the practice of collecting and analyzing publicly available information from open sources to produce actionable intelligence. Open sources include social media platforms, search engines, public records, news media, websites, government data, academic publications, and geospatial information. This information is legally accessible without requiring hacking, breaking in, or special authorization.</p>
+
+        <p>OSINT is used across corporate competitive intelligence, security threat assessment, investigative journalism, and research. Unlike other intelligence types such as HUMINT (human sources) or SIGINT (intercepted communications), OSINT focuses exclusively on publicly available information that can be legally and ethically accessed.</p>
+
+        <p>This tool generates AI prompts that help analysts systematically conduct OSINT investigations using a proven 4-phase methodology: Discovery, Signals, Insights, and Receipts. Each generated prompt guides the analysis process from initial target identification through evidence documentation, ensuring thorough and professional intelligence reports.</p>
+      </div>
+
+      <!-- ARIA live region for notifications -->
+      <div id="notification-area" role="status" aria-live="polite" aria-atomic="true" class="notification-area"></div>
+    </div>
+  </main>
+
+  <!-- MODALS: T003 -->
+  <!-- Intelligence Setup Modal (Step 1) -->
+  <dialog id="intelligence-setup-modal" aria-labelledby="intelligence-setup-title">
+    <div>
+      <div class="modal-header">
+        <h2 id="intelligence-setup-title">Step 1: Intelligence Setup</h2>
+        <button class="modal-close" aria-label="Close modal" title="Press ESC to close">&times;</button>
+      </div>
+      <div class="modal-content">
+        <p>Select an intelligence analysis type:</p>
+        <div id="intelligence-types-grid" role="radiogroup" aria-label="Intelligence Types">
+          <!-- Intelligence type cards will be populated by JavaScript in T014 -->
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="intelligence-next-btn" class="btn btn-primary" disabled>Next</button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Discovery Configuration Modal (Step 2) -->
+  <dialog id="discovery-config-modal" aria-labelledby="discovery-config-title">
+    <div>
+      <div class="modal-header">
+        <h2 id="discovery-config-title">Step 2: Discovery Configuration</h2>
+        <button class="modal-close" aria-label="Close modal" title="Press ESC to close">&times;</button>
+      </div>
+      <div class="modal-content">
+        <section class="form-section">
+          <h3>Investigation Target</h3>
+          <label for="target-name-input">Target Name:</label>
+          <input type="text" id="target-name-input" placeholder="e.g., John Smith, Acme Corp, New York City" maxlength="500" aria-required="true">
+        </section>
+
+        <section class="form-section">
+          <h3>Timeframe</h3>
+          <label for="timeframe-select">Investigation Period:</label>
+          <select id="timeframe-select">
+            <option value="all">All time</option>
+            <option value="7d">Last 7 days</option>
+            <option value="30d">Last 30 days</option>
+            <option value="180d" selected>Last 6 months</option>
+            <option value="365d">Last 1 year</option>
+            <option value="custom">Custom Range</option>
+          </select>
+
+          <div id="custom-date-range" style="display: none;">
+            <label for="date-start">Start Date:</label>
+            <input type="date" id="date-start">
+            <label for="date-end">End Date:</label>
+            <input type="date" id="date-end">
+          </div>
+        </section>
+
+        <section class="form-section">
+          <h3>Discovery Areas</h3>
+          <div id="discovery-areas-list" class="checkbox-list">
+            <!-- Discovery area checkboxes will be populated by JavaScript in T015 -->
+          </div>
+
+          <div class="custom-area-input">
+            <label for="custom-area-input">Add Custom Discovery Area:</label>
+            <div class="input-group">
+              <input type="text" id="custom-area-input" placeholder="e.g., Known Aliases" maxlength="100">
+              <button id="add-custom-area-btn" class="btn btn-secondary">Add</button>
+            </div>
+            <small id="custom-area-count">0 / 10 custom areas</small>
+          </div>
+        </section>
+      </div>
+      <div class="modal-footer">
+        <button id="discovery-back-btn" class="btn btn-secondary">Back</button>
+        <button id="generate-prompt-btn" class="btn btn-primary">Generate Prompt</button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Prompt Generated Modal (Step 3) -->
+  <dialog id="prompt-generated-modal" aria-labelledby="prompt-generated-title">
+    <div>
+      <div class="modal-header">
+        <h2 id="prompt-generated-title">Step 3: Prompt Generated</h2>
+        <button class="modal-close" aria-label="Close modal" title="Press ESC to close">&times;</button>
+      </div>
+      <div class="modal-content">
+        <div class="prompt-output">
+          <textarea id="generated-prompt-text" readonly rows="20" aria-label="Generated OSINT prompt"></textarea>
+
+          <div class="prompt-meta">
+            <span id="character-count" aria-live="polite">0 / 8,000 characters</span>
+            <span id="truncation-warning" style="display: none;" class="warning">
+              ⚠️ Prompt optimized to fit 8000 character limit
+            </span>
+          </div>
+        </div>
+
+        <!-- Quick Actions Section -->
+        <section class="form-section" style="margin-top: 24px;">
+          <h3>Quick Actions</h3>
+          <p style="font-size: 14px; color: #666; margin-bottom: 12px;">
+            Select an AI model and click to open with your prompt ready to paste:
+          </p>
+
+          <div class="ai-actions-grid">
+            <button id="ai-claude-btn" class="btn btn-ai btn-claude">
+              <span class="ai-icon">🔵</span>
+              <span>Claude</span>
+            </button>
+            <button id="ai-chatgpt-btn" class="btn btn-ai btn-chatgpt">
+              <span class="ai-icon">🟢</span>
+              <span>ChatGPT</span>
+            </button>
+            <button id="ai-perplexity-btn" class="btn btn-ai btn-perplexity">
+              <span class="ai-icon">🟣</span>
+              <span>Perplexity</span>
+            </button>
+            <button id="ai-gemini-btn" class="btn btn-ai btn-gemini">
+              <span class="ai-icon">🔷</span>
+              <span>Gemini</span>
+            </button>
+          </div>
+
+          <p style="font-size: 12px; color: #999; margin-top: 8px; text-align: center;">
+            <span id="premium-badge" style="display: none;">✨ Premium: Auto-inject enabled</span>
+            <span id="free-badge">Free: Copy + paste manually</span>
+          </p>
+        </section>
+      </div>
+      <div class="modal-footer">
+        <button id="copy-clipboard-btn" class="btn btn-secondary">📋 Copy</button>
+        <button id="save-template-btn" class="btn btn-secondary">💾 Save Template</button>
+        <button class="modal-close btn btn-primary">Close</button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Template List Modal -->
+  <dialog id="template-list-modal" aria-labelledby="template-list-title">
+    <div>
+      <div class="modal-header">
+        <h2 id="template-list-title">Load Template</h2>
+        <button class="modal-close" aria-label="Close modal" title="Press ESC to close">&times;</button>
+      </div>
+      <div class="modal-content">
+        <div id="template-list">
+          <!-- Template list will be populated by JavaScript in T023 -->
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="modal-close btn btn-secondary">Cancel</button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Save Template Modal -->
+  <dialog id="save-template-modal" aria-labelledby="save-template-title">
+    <div>
+      <div class="modal-header">
+        <h2 id="save-template-title">Save Template</h2>
+        <button class="modal-close" aria-label="Close modal" title="Press ESC to close">&times;</button>
+      </div>
+      <div class="modal-content">
+        <label for="template-name-input">Template Name:</label>
+        <input type="text" id="template-name-input" placeholder="e.g., John Smith Investigation" maxlength="100" aria-required="true">
+      </div>
+      <div class="modal-footer">
+        <button class="modal-close btn btn-secondary">Cancel</button>
+        <button id="confirm-save-template-btn" class="btn btn-primary">Save</button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Delete Confirmation Modal -->
+  <dialog id="delete-confirm-modal" aria-labelledby="delete-confirm-title">
+    <div>
+      <div class="modal-header">
+        <h2 id="delete-confirm-title">Confirm Deletion</h2>
+        <button class="modal-close" aria-label="Close modal" title="Press ESC to close">&times;</button>
+      </div>
+      <div class="modal-content">
+        <p id="delete-confirm-message">Delete this template? This cannot be undone.</p>
+      </div>
+      <div class="modal-footer">
+        <button class="modal-close btn btn-secondary">Cancel</button>
+        <button id="confirm-delete-btn" class="btn btn-danger">Confirm</button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Upgrade to Premium Modal -->
+  <dialog id="upgrade-modal" aria-labelledby="upgrade-title">
+    <div>
+      <div class="modal-header">
+        <h2 id="upgrade-title">✨ Upgrade to OSINT 2.1 Pro</h2>
+        <button class="modal-close" aria-label="Close modal">&times;</button>
+      </div>
+      <div class="modal-content">
+        <div class="upgrade-content">
+          <p style="font-size: 16px; margin-bottom: 24px; color: #666;">
+            Unlock premium features and supercharge your OSINT investigations:
+          </p>
+
+          <div class="premium-features-list">
+            <div class="premium-feature-item">
+              <span class="feature-icon">🚀</span>
+              <div>
+                <strong>One-Click AI Integration</strong>
+                <p>Auto-inject prompts into Claude, ChatGPT, Perplexity - no manual copy-paste</p>
+              </div>
+            </div>
+
+            <div class="premium-feature-item">
+              <span class="feature-icon">📚</span>
+              <div>
+                <strong>Unlimited Templates</strong>
+                <p>Save 500 investigation templates (vs 5 in free)</p>
+              </div>
+            </div>
+
+            <div class="premium-feature-item">
+              <span class="feature-icon">🎯</span>
+              <div>
+                <strong>4 Premium Intelligence Types</strong>
+                <p>Legal Intelligence, Financial Forensics, Cyber Threat Intel, Competitive Intelligence</p>
+              </div>
+            </div>
+
+            <div class="premium-feature-item">
+              <span class="feature-icon">⏱️</span>
+              <div>
+                <strong>Prompt History</strong>
+                <p>Access your last 100 generated prompts anytime</p>
+              </div>
+            </div>
+
+            <div class="premium-feature-item">
+              <span class="feature-icon">🔧</span>
+              <div>
+                <strong>More Custom Areas</strong>
+                <p>Add 10 custom discovery areas per template (vs 3 in free)</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="pricing-box">
+            <div class="price-tag">
+              <span class="price">$9.99</span>
+              <span class="period">/month</span>
+            </div>
+            <p style="font-size: 13px; color: #999; margin-top: 8px;">or $79/year (save 34%)</p>
+          </div>
+
+          <div class="license-key-section">
+            <p style="font-size: 14px; margin-bottom: 12px; font-weight: 500;">
+              Already have a license key?
+            </p>
+            <div class="input-group">
+              <input type="text" id="license-key-input" placeholder="OSINT-PRO-XXXX-XXXX-XXXX-XXXX-XXXX" style="flex: 1;" maxlength="50">
+              <button id="validate-license-btn" class="btn btn-primary">Activate</button>
+            </div>
+            <p id="license-error" style="font-size: 13px; color: #dc3545; margin-top: 8px; display: none;"></p>
+            <p id="license-success" style="font-size: 13px; color: #10A37F; margin-top: 8px; display: none;">
+              ✓ License activated successfully!
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="modal-close btn btn-secondary">Maybe Later</button>
+        <button id="buy-license-btn" class="btn btn-primary">Buy License Key</button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- CONTRACT DATA: T002 -->
+
+  <!-- MODELS: T007-T011 -->
+
+  <!-- CONTRACT TESTS: T004-T006 -->
+
+  <!-- BUSINESS LOGIC: T014-T024 -->
+
+  <!-- INTEGRATION: T025-T027 -->
+
+  <script src="license-validator.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>
