@@ -1,0 +1,24 @@
+{
+  "name": "web3-osint",
+  "version": "1.0.0",
+  "description": "BlockTracker - Web3 OSINT Tool for analyzing Ethereum wallets, smart contracts, and NFT collections",
+  "main": "src/index.html",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "web3",
+    "ethereum",
+    "osint",
+    "blockchain",
+    "intelligence",
+    "ethers.js"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "ethers": "^6.13.0"
+  }
+}
