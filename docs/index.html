@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BlockTracker - Web3 OSINT Tool</title>
+    <link rel="stylesheet" href="css/styles.css">
+
+    <!-- Ethers.js v6 library from CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <h1 class="logo">🔍 BlockTracker</h1>
+            <p class="tagline">Blockchain Intelligence Analyzer</p>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container">
+        <!-- Analysis Type Selector -->
+        <section class="analysis-selector">
+            <h2>Select Analysis Type</h2>
+            <div class="button-group">
+                <button class="btn btn-primary active" data-type="wallet">
+                    💼 Wallet Analysis
+                </button>
+                <button class="btn btn-primary" data-type="contract">
+                    📄 Smart Contract
+                </button>
+                <button class="btn btn-primary" data-type="nft">
+                    🖼️ NFT Collection
+                </button>
+            </div>
+        </section>
+
+        <!-- Input Section -->
+        <section class="input-section">
+            <h2 id="input-title">Wallet Address</h2>
+            <div class="input-group">
+                <input
+                    type="text"
+                    id="address-input"
+                    class="input-field"
+                    placeholder="Enter Ethereum address (0x...)"
+                    autocomplete="off"
+                >
+                <button id="analyze-btn" class="btn btn-success">Analyze</button>
+            </div>
+            <div class="example-addresses">
+                <p class="hint">Try example addresses:</p>
+                <button class="btn-link" data-address="0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045">Vitalik.eth</button>
+                <button class="btn-link" data-address="0x47ac0Fb4F2D84898e4D9E7b4DaB3C24507a6D503">Binance Hot Wallet</button>
+            </div>
+        </section>
+
+        <!-- Loading Indicator -->
+        <div id="loading" class="loading hidden">
+            <div class="spinner"></div>
+            <p>Analyzing blockchain data...</p>
+        </div>
+
+        <!-- Error Display -->
+        <div id="error" class="error hidden">
+            <p id="error-message"></p>
+        </div>
+
+        <!-- Results Section -->
+        <section id="results" class="results hidden">
+            <h2>Analysis Results</h2>
+
+            <!-- Wallet Results -->
+            <div id="wallet-results" class="result-card hidden">
+                <h3>💼 Wallet Information</h3>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="label">Address:</span>
+                        <span class="value" id="wallet-address">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">ETH Balance:</span>
+                        <span class="value" id="wallet-balance">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">Transaction Count:</span>
+                        <span class="value" id="wallet-tx-count">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">First Activity:</span>
+                        <span class="value" id="wallet-first-tx">-</span>
+                    </div>
+                </div>
+
+                <h4>ERC-20 Token Holdings</h4>
+                <div id="token-list" class="token-list">
+                    <!-- Populated dynamically -->
+                </div>
+
+                <h4>Recent Transactions</h4>
+                <div id="transaction-list" class="transaction-list">
+                    <!-- Populated dynamically -->
+                </div>
+            </div>
+
+            <!-- Contract Results -->
+            <div id="contract-results" class="result-card hidden">
+                <h3>📄 Smart Contract Information</h3>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="label">Contract Address:</span>
+                        <span class="value" id="contract-address">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">Name:</span>
+                        <span class="value" id="contract-name">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">Compiler:</span>
+                        <span class="value" id="contract-compiler">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">Verified:</span>
+                        <span class="value" id="contract-verified">-</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- NFT Results -->
+            <div id="nft-results" class="result-card hidden">
+                <h3>🖼️ NFT Collection Information</h3>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="label">Collection:</span>
+                        <span class="value" id="nft-name">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">Symbol:</span>
+                        <span class="value" id="nft-symbol">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">Total Supply:</span>
+                        <span class="value" id="nft-supply">-</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Prompt Section -->
+            <div class="ai-prompt-section">
+                <h3>🤖 AI Intelligence Report Prompt</h3>
+                <p class="hint">Copy this prompt to ChatGPT/Claude for deeper analysis:</p>
+                <div class="prompt-container">
+                    <pre id="ai-prompt" class="ai-prompt"><!-- Populated dynamically --></pre>
+                    <button id="copy-prompt-btn" class="btn btn-secondary">Copy Prompt</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>Built with ❤️ using ethers.js • Your First Web3 Application</p>
+            <p class="footer-links">
+                <a href="https://docs.ethers.org/v6/" target="_blank">Ethers.js Docs</a> |
+                <a href="https://ethereum.org/en/developers/" target="_blank">Ethereum Docs</a>
+            </p>
+        </div>
+    </footer>
+
+    <!-- Scripts (ES Modules) -->
+    <script type="module" src="config/api-keys.js"></script>
+    <script type="module" src="js/app.js"></script>
+</body>
+</html>
