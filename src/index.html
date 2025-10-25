@@ -13,10 +13,51 @@
     <!-- Header -->
     <header class="header">
         <div class="container">
-            <h1 class="logo">🔍 BlockTracker</h1>
-            <p class="tagline">Blockchain Intelligence Analyzer</p>
+            <div class="header-content">
+                <div>
+                    <h1 class="logo">🔍 BlockTracker</h1>
+                    <p class="tagline">Blockchain Intelligence Analyzer</p>
+                </div>
+                <button id="settings-btn" class="btn btn-icon" title="Settings">⚙️</button>
+            </div>
         </div>
     </header>
+
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>⚙️ API Settings</h2>
+                <button id="close-modal" class="btn-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p class="modal-description">
+                    Enter your free API keys to use BlockTracker. Keys are stored locally in your browser.
+                </p>
+                <div class="form-group">
+                    <label for="alchemy-key">Alchemy API Key:</label>
+                    <input type="text" id="alchemy-key" class="input-field" placeholder="your-alchemy-api-key">
+                    <small>Get free key at <a href="https://www.alchemy.com/" target="_blank">alchemy.com</a></small>
+                </div>
+                <div class="form-group">
+                    <label for="etherscan-key">Etherscan API Key:</label>
+                    <input type="text" id="etherscan-key" class="input-field" placeholder="your-etherscan-api-key">
+                    <small>Get free key at <a href="https://etherscan.io/apis" target="_blank">etherscan.io/apis</a></small>
+                </div>
+                <div class="form-group">
+                    <label for="network-select">Network:</label>
+                    <select id="network-select" class="input-field">
+                        <option value="mainnet">Ethereum Mainnet</option>
+                        <option value="sepolia">Sepolia Testnet</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="save-settings" class="btn btn-success">Save Settings</button>
+                <button id="cancel-settings" class="btn btn-secondary">Cancel</button>
+            </div>
+        </div>
+    </div>
 
     <!-- Main Content -->
     <main class="container">

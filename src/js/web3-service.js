@@ -5,9 +5,8 @@
  * This is where we connect to Ethereum and fetch data
  */
 
-// Import ethers.js from CDN (we'll use CDN in HTML for browser compatibility)
-// Import configuration
-import API_KEYS from '../../config/api-keys.js';
+// Import ethers.js from CDN (loaded in HTML)
+// API keys loaded from localStorage for GitHub Pages compatibility
 
 /**
  * Web3Service class - Manages blockchain connections and queries
@@ -15,9 +14,30 @@ import API_KEYS from '../../config/api-keys.js';
 class Web3Service {
   constructor() {
     this.provider = null;
-    this.network = API_KEYS.NETWORK;
-    this.alchemyKey = API_KEYS.ALCHEMY_API_KEY;
-    this.etherscanKey = API_KEYS.ETHERSCAN_API_KEY;
+    this.network = this.getFromStorage('NETWORK') || 'mainnet';
+    this.alchemyKey = this.getFromStorage('ALCHEMY_API_KEY');
+    this.etherscanKey = this.getFromStorage('ETHERSCAN_API_KEY');
+  }
+
+  /**
+   * Get API key from localStorage
+   */
+  getFromStorage(key) {
+    return localStorage.getItem(`blocktracker_${key}`);
+  }
+
+  /**
+   * Save API key to localStorage
+   */
+  saveToStorage(key, value) {
+    localStorage.setItem(`blocktracker_${key}`, value);
+  }
+
+  /**
+   * Check if API keys are configured
+   */
+  hasApiKeys() {
+    return this.alchemyKey && this.etherscanKey;
   }
 
   /**
@@ -27,8 +47,8 @@ class Web3Service {
   async initialize() {
     try {
       // Check if API keys are configured
-      if (this.alchemyKey === 'your-alchemy-api-key-here') {
-        throw new Error('Please configure your Alchemy API key in config/api-keys.js');
+      if (!this.hasApiKeys()) {
+        throw new Error('Please configure your API keys in Settings (⚙️ button)');
       }
 
       // Create provider using Alchemy
