@@ -42,13 +42,23 @@
 
   "content_scripts": [
     {
-      "matches": [
-        "https://claude.ai/*",
-        "https://chat.openai.com/*",
-        "https://www.perplexity.ai/*",
-        "https://gemini.google.com/*"
-      ],
-      "js": ["content-scripts/inject-sdk.js"],
+      "matches": ["https://claude.ai/*"],
+      "js": ["content-scripts/claude-inject.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://chat.openai.com/*"],
+      "js": ["content-scripts/chatgpt-inject.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://www.perplexity.ai/*"],
+      "js": ["content-scripts/perplexity-inject.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://gemini.google.com/*"],
+      "js": ["content-scripts/gemini-inject.js"],
       "run_at": "document_idle"
     }
   ],

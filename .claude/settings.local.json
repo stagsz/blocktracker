@@ -7,7 +7,9 @@
       "mcp__playwright__browser_navigate",
       "mcp__playwright__browser_console_messages",
       "mcp__playwright__browser_click",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(dir:*)",
+      "mcp__playwright__browser_snapshot"
     ],
     "deny": [],
     "ask": []

@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <!-- Background -->
+  <rect width="128" height="128" rx="16" fill="#003366"/>
+
+  <!-- Magnifying glass circle -->
+  <circle cx="52" cy="52" r="28" fill="none" stroke="#FFFFFF" stroke-width="6"/>
+
+  <!-- Magnifying glass handle -->
+  <line x1="72" y1="72" x2="92" y2="92" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round"/>
+
+  <!-- Search target crosshair inside glass -->
+  <line x1="52" y1="42" x2="52" y2="62" stroke="#0066CC" stroke-width="3"/>
+  <line x1="42" y1="52" x2="62" y2="52" stroke="#0066CC" stroke-width="3"/>
+  <circle cx="52" cy="52" r="6" fill="#0066CC"/>
+
+  <!-- "2.1" version text -->
+  <text x="94" y="32" font-family="Arial, sans-serif" font-size="20" font-weight="bold" fill="#FFFFFF">2.1</text>
+</svg>

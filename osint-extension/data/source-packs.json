@@ -1,0 +1,308 @@
+{
+  "version": "1.0.0",
+  "description": "Curated discovery area presets for specific industries and regions",
+  "packs": [
+    {
+      "id": "us-startup",
+      "name": "US Tech Startup",
+      "description": "Essential discovery areas for investigating US-based technology startups",
+      "icon": "🚀",
+      "applicableTypes": ["company-research", "market-intelligence", "technology-profiling"],
+      "tier": "free",
+      "discoveryAreas": [
+        "corporate-structure",
+        "financial-health",
+        "key-personnel",
+        "tech-stack",
+        "code-repositories",
+        "market-position",
+        "competitor-analysis",
+        "patents-publications"
+      ],
+      "customAreas": [
+        {
+          "id": "funding-rounds",
+          "name": "Funding & Investors",
+          "description": "VC funding rounds, investors, valuations, cap table insights"
+        },
+        {
+          "id": "startup-databases",
+          "name": "Startup Database Presence",
+          "description": "Crunchbase, PitchBook, AngelList profiles and metrics"
+        }
+      ],
+      "suggestedContext": "Focus on Crunchbase, PitchBook, LinkedIn, GitHub, and SEC filings. Check Y Combinator, TechCrunch, and Product Hunt for launch history."
+    },
+    {
+      "id": "eu-fintech",
+      "name": "EU Fintech Company",
+      "description": "Regulatory-focused pack for European financial technology companies",
+      "icon": "🏦",
+      "applicableTypes": ["company-research", "market-intelligence", "reputation-analysis"],
+      "tier": "free",
+      "discoveryAreas": [
+        "corporate-structure",
+        "financial-health",
+        "key-personnel",
+        "regulatory-compliance",
+        "reputation",
+        "market-position",
+        "security-posture"
+      ],
+      "customAreas": [
+        {
+          "id": "eu-licensing",
+          "name": "EU Financial Licenses",
+          "description": "FCA, BaFin, AMF authorizations, passporting status, PSD2 compliance"
+        },
+        {
+          "id": "gdpr-compliance",
+          "name": "GDPR & Data Protection",
+          "description": "Privacy policies, data processing agreements, breach history"
+        },
+        {
+          "id": "aml-status",
+          "name": "AML/KYC Status",
+          "description": "Anti-money laundering compliance, sanctions screening procedures"
+        }
+      ],
+      "suggestedContext": "Check national financial regulators (FCA, BaFin, ACPR), EU company registries, and GDPR enforcement databases. Review Trustpilot and app store reviews for customer sentiment."
+    },
+    {
+      "id": "crypto-exchange",
+      "name": "Crypto Exchange / Web3",
+      "description": "Blockchain and cryptocurrency-focused investigation areas",
+      "icon": "₿",
+      "applicableTypes": ["company-research", "threat-assessment", "technology-profiling", "financial-investigation"],
+      "tier": "free",
+      "discoveryAreas": [
+        "corporate-structure",
+        "key-personnel",
+        "security-posture",
+        "regulatory-compliance",
+        "digital-infrastructure",
+        "reputation",
+        "controversies"
+      ],
+      "customAreas": [
+        {
+          "id": "blockchain-analytics",
+          "name": "On-Chain Analytics",
+          "description": "Wallet addresses, transaction patterns, reserve proofs, chain analysis"
+        },
+        {
+          "id": "crypto-licenses",
+          "name": "Crypto Licenses & Registrations",
+          "description": "Money transmitter licenses, VASP registrations, offshore entities"
+        },
+        {
+          "id": "security-incidents",
+          "name": "Security Incident History",
+          "description": "Past hacks, exploits, rug pulls, smart contract vulnerabilities"
+        },
+        {
+          "id": "token-metrics",
+          "name": "Token Economics",
+          "description": "Token distribution, vesting schedules, liquidity analysis"
+        }
+      ],
+      "suggestedContext": "Use Etherscan, blockchain explorers, DeFiLlama, and CoinGecko for on-chain data. Check Rekt.news for security incidents. Review Twitter/X and Discord for community sentiment."
+    },
+    {
+      "id": "government-contractor",
+      "name": "Government Contractor",
+      "description": "Due diligence pack for government contractors and defense suppliers",
+      "icon": "🏛️",
+      "applicableTypes": ["company-research", "reputation-analysis", "threat-assessment"],
+      "tier": "free",
+      "discoveryAreas": [
+        "corporate-structure",
+        "financial-health",
+        "key-personnel",
+        "regulatory-compliance",
+        "security-posture",
+        "reputation",
+        "historical-incidents"
+      ],
+      "customAreas": [
+        {
+          "id": "gov-contracts",
+          "name": "Government Contracts",
+          "description": "USASpending, FPDS, SAM.gov registrations, contract awards and performance"
+        },
+        {
+          "id": "clearance-status",
+          "name": "Security Clearance Facility",
+          "description": "Facility clearance level, CAGE codes, cleared personnel indicators"
+        },
+        {
+          "id": "debarment-check",
+          "name": "Debarment & Exclusions",
+          "description": "SAM exclusions, OIG exclusions, OFAC sanctions, state debarment lists"
+        },
+        {
+          "id": "lobbyist-activity",
+          "name": "Lobbying & Political Activity",
+          "description": "Lobbying disclosures, political contributions, revolving door connections"
+        }
+      ],
+      "suggestedContext": "Primary sources: USASpending.gov, SAM.gov, FPDS, GovWin. Check OpenSecrets for lobbying data. Review GAO reports and IG investigations for performance issues."
+    },
+    {
+      "id": "executive-background",
+      "name": "Executive Background Check",
+      "description": "Comprehensive personal investigation for C-suite and board members",
+      "icon": "👔",
+      "applicableTypes": ["person-investigation", "reputation-analysis"],
+      "tier": "free",
+      "discoveryAreas": [
+        "social-media",
+        "employment-history",
+        "education",
+        "financial-records",
+        "media-coverage",
+        "controversies",
+        "family-connections"
+      ],
+      "customAreas": [
+        {
+          "id": "board-positions",
+          "name": "Board & Advisory Roles",
+          "description": "Current and past board seats, advisory positions, conflicts of interest"
+        },
+        {
+          "id": "speaking-publications",
+          "name": "Speaking & Publications",
+          "description": "Conference appearances, authored articles, podcast interviews, thought leadership"
+        },
+        {
+          "id": "litigation-history",
+          "name": "Litigation History",
+          "description": "Civil suits, SEC actions, bankruptcy filings, judgment liens"
+        }
+      ],
+      "suggestedContext": "Cross-reference LinkedIn, Bloomberg Executive Profile, and SEC EDGAR for 10-K/proxy bios. Check PACER for federal litigation, state courts for civil cases. Review Glassdoor for employee sentiment about leadership."
+    },
+    {
+      "id": "supply-chain-vendor",
+      "name": "Supply Chain Vendor",
+      "description": "Third-party risk assessment for suppliers and vendors",
+      "icon": "📦",
+      "applicableTypes": ["company-research", "threat-assessment", "supply-chain-analysis"],
+      "tier": "pro",
+      "discoveryAreas": [
+        "corporate-structure",
+        "financial-health",
+        "regulatory-compliance",
+        "security-posture",
+        "reputation",
+        "digital-infrastructure"
+      ],
+      "customAreas": [
+        {
+          "id": "manufacturing-locations",
+          "name": "Manufacturing & Facilities",
+          "description": "Factory locations, certifications (ISO, SOC2), labor practices"
+        },
+        {
+          "id": "supply-chain-dependencies",
+          "name": "Upstream Dependencies",
+          "description": "Key suppliers, single points of failure, geographic concentration"
+        },
+        {
+          "id": "esg-compliance",
+          "name": "ESG & Sustainability",
+          "description": "Environmental certifications, sustainability reports, ESG ratings"
+        },
+        {
+          "id": "cyber-risk-score",
+          "name": "Cyber Risk Indicators",
+          "description": "SecurityScorecard, BitSight ratings, breach history, vulnerability exposure"
+        }
+      ],
+      "suggestedContext": "Check D&B, Ecovadis, and industry-specific databases. Review customs/import data for supply chain mapping. Use SecurityScorecard or BitSight for cyber risk assessment."
+    },
+    {
+      "id": "competitor-deep-dive",
+      "name": "Competitor Intelligence",
+      "description": "Comprehensive competitive analysis pack",
+      "icon": "🎯",
+      "applicableTypes": ["company-research", "market-intelligence", "technology-profiling"],
+      "tier": "pro",
+      "discoveryAreas": [
+        "corporate-structure",
+        "financial-health",
+        "key-personnel",
+        "tech-stack",
+        "market-position",
+        "competitor-analysis",
+        "pricing-strategies",
+        "customer-sentiment"
+      ],
+      "customAreas": [
+        {
+          "id": "hiring-signals",
+          "name": "Hiring & Growth Signals",
+          "description": "Job postings, headcount trends, new office locations, team expansions"
+        },
+        {
+          "id": "product-roadmap",
+          "name": "Product Roadmap Indicators",
+          "description": "Feature announcements, beta programs, patent filings, job descriptions"
+        },
+        {
+          "id": "partnership-ecosystem",
+          "name": "Partnership & Integration Ecosystem",
+          "description": "Technology partners, resellers, integration marketplace presence"
+        }
+      ],
+      "suggestedContext": "Monitor job boards (LinkedIn, Greenhouse, Lever) for hiring signals. Track product updates via changelog pages, Twitter, and ProductHunt. Use SimilarWeb and BuiltWith for tech/traffic analysis."
+    },
+    {
+      "id": "threat-actor-profile",
+      "name": "Threat Actor Profile",
+      "description": "Cybersecurity threat intelligence investigation",
+      "icon": "🔓",
+      "applicableTypes": ["threat-assessment", "technology-profiling"],
+      "tier": "pro",
+      "discoveryAreas": [
+        "threat-actors",
+        "attack-vectors",
+        "vulnerabilities",
+        "historical-incidents",
+        "indicators-of-compromise",
+        "digital-infrastructure",
+        "security-posture"
+      ],
+      "customAreas": [
+        {
+          "id": "ttps",
+          "name": "TTPs (MITRE ATT&CK)",
+          "description": "Tactics, techniques, and procedures mapped to MITRE framework"
+        },
+        {
+          "id": "c2-infrastructure",
+          "name": "C2 Infrastructure",
+          "description": "Command and control servers, domains, IP ranges, hosting patterns"
+        },
+        {
+          "id": "attribution-indicators",
+          "name": "Attribution Indicators",
+          "description": "Language artifacts, timezone patterns, tooling signatures, operational security"
+        },
+        {
+          "id": "target-victimology",
+          "name": "Target Victimology",
+          "description": "Historical targets, industry focus, geographic patterns, motivation indicators"
+        }
+      ],
+      "suggestedContext": "Reference MITRE ATT&CK, VirusTotal, AlienVault OTX, and Recorded Future. Check vendor threat reports (Mandiant, CrowdStrike, Microsoft). Use Shodan for infrastructure reconnaissance."
+    }
+  ],
+  "metadata": {
+    "lastUpdated": "2025-01-01",
+    "totalPacks": 8,
+    "freePacks": 5,
+    "proPacks": 3
+  }
+}

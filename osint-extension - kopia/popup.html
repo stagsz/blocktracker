@@ -35,15 +35,6 @@
         <button id="load-template-btn" class="btn btn-secondary">Load Template</button>
       </div>
 
-      <!-- Quick Workflow Dropdown -->
-      <div class="quick-workflow-section" id="quick-workflow-section" style="display: none;">
-        <label for="quick-workflow-select">Quick Start from Saved Workflow:</label>
-        <select id="quick-workflow-select">
-          <option value="">Select a template...</option>
-          <!-- Options populated by JavaScript -->
-        </select>
-      </div>
-
       <div class="osint-explanation">
         <h3>What is Intelligence Research?</h3>
         <p>BrightScope is a professional intelligence research platform that helps you collect and analyze publicly available information from open sources to produce actionable insights. Open sources include social media platforms, search engines, public records, news media, websites, government data, academic publications, and geospatial information. This information is legally and ethically accessible.</p>
@@ -127,29 +118,6 @@
             <small id="custom-area-count">0 / 10 custom areas</small>
           </div>
         </section>
-
-        <!-- Completion Checklist -->
-        <section class="form-section completion-checklist" id="completion-checklist">
-          <h3>Ready to Generate?</h3>
-          <div class="checklist-items">
-            <div class="checklist-item" id="check-target">
-              <span class="check-icon">○</span>
-              <span class="check-label">Target name specified</span>
-            </div>
-            <div class="checklist-item" id="check-timeframe">
-              <span class="check-icon">○</span>
-              <span class="check-label">Timeframe selected</span>
-            </div>
-            <div class="checklist-item" id="check-areas">
-              <span class="check-icon">○</span>
-              <span class="check-label">3+ discovery areas selected</span>
-            </div>
-            <div class="checklist-item" id="check-custom">
-              <span class="check-icon">○</span>
-              <span class="check-label">Custom areas added (optional)</span>
-            </div>
-          </div>
-        </section>
       </div>
       <div class="modal-footer">
         <button id="discovery-back-btn" class="btn btn-secondary">Back</button>
@@ -211,7 +179,6 @@
       </div>
       <div class="modal-footer">
         <button id="copy-clipboard-btn" class="btn btn-secondary">📋 Copy</button>
-        <button id="export-markdown-btn" class="btn btn-secondary">📄 Export MD</button>
         <button id="save-template-btn" class="btn btn-secondary">💾 Save Template</button>
         <button class="modal-close btn btn-primary">Close</button>
       </div>
@@ -222,27 +189,12 @@
   <dialog id="template-list-modal" aria-labelledby="template-list-title">
     <div>
       <div class="modal-header">
-        <h2 id="template-list-title">Saved Templates</h2>
+        <h2 id="template-list-title">Load Template</h2>
         <button class="modal-close" aria-label="Close modal" title="Press ESC to close">&times;</button>
       </div>
       <div class="modal-content">
         <div id="template-list">
           <!-- Template list will be populated by JavaScript in T023 -->
-        </div>
-
-        <!-- Import/Export Section -->
-        <div class="template-io-section">
-          <h4>Import / Export</h4>
-          <div class="template-io-buttons">
-            <button id="import-templates-btn" class="btn btn-secondary btn-sm">
-              📥 Import JSON
-            </button>
-            <button id="export-templates-btn" class="btn btn-secondary btn-sm">
-              📤 Export All
-            </button>
-          </div>
-          <input type="file" id="import-file-input" accept=".json,application/json" style="display: none;">
-          <p class="io-hint">Share templates with team members or backup your workflows</p>
         </div>
       </div>
       <div class="modal-footer">
