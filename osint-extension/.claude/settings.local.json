@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nfeat: Add Phase 2 & 3 features - premium differentiation and team features\n\nPhase 2 - Premium Differentiation:\n- Smart prompt composer with depth/formality/risk sliders\n- Multi-target batching with navigation and \"Copy All\" export\n- PDF report export with professional formatting\n- Keyboard shortcuts \\(?, n, t, d, Ctrl+Enter, Ctrl+S, Ctrl+P, arrows\\)\n\nPhase 3 - Team & Growth:\n- Audit trail logging prompt generation activity \\(last 100 entries\\)\n- Dark mode with system preference detection and manual toggle\n- Shareable templates via encoded share codes \\(BS1-...\\)\n- Prompt history storing last 100 generated prompts with search\n\nNew UI Elements:\n- Theme toggle button \\(sun/moon\\) in top-right corner\n- Activity Log and Prompt History links on main screen\n- Share buttons on template list items\n- Batch navigation controls with Previous/Next\n- Completion checklist in discovery config\n\nCSS Updates:\n- CSS variables for theming\n- Dark mode color scheme\n- Styles for all new modals and components\n\n🤖 Generated with [Claude Code]\\(https://claude.com/claude-code\\)\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")"
+    ]
+  }
+}
