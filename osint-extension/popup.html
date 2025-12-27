@@ -9,6 +9,14 @@
   <link rel="stylesheet" href="popup.css">
 </head>
 <body>
+  <!-- Theme Toggle -->
+  <div class="theme-toggle">
+    <button id="theme-toggle-btn" class="theme-toggle-btn" aria-label="Toggle dark mode" title="Toggle dark/light mode">
+      <span class="icon-light">☀️</span>
+      <span class="icon-dark">🌙</span>
+    </button>
+  </div>
+
   <!-- MAIN CONTAINER: T003 -->
   <main>
     <div class="container">
@@ -33,6 +41,14 @@
       <div class="main-actions">
         <button id="new-prompt-btn" class="btn btn-primary">New Prompt</button>
         <button id="load-template-btn" class="btn btn-secondary">Load Template</button>
+      </div>
+
+      <p class="keyboard-hint">Press <kbd>?</kbd> for keyboard shortcuts</p>
+
+      <div class="secondary-actions">
+        <button id="view-history-btn" class="btn btn-text btn-sm">Prompt History</button>
+        <span class="action-separator">•</span>
+        <button id="view-audit-log-btn" class="btn btn-text btn-sm">Activity Log</button>
       </div>
 
       <!-- Quick Workflow Dropdown -->
@@ -90,6 +106,19 @@
           <h3>Investigation Target</h3>
           <label for="target-name-input">Target Name:</label>
           <input type="text" id="target-name-input" placeholder="e.g., John Smith, Acme Corp, New York City" maxlength="500" aria-required="true">
+
+          <!-- Multi-target toggle (Premium) -->
+          <div class="multi-target-section" id="multi-target-section">
+            <label class="multi-target-toggle">
+              <input type="checkbox" id="multi-target-toggle">
+              <span>Batch Mode: Multiple Targets <span class="premium-tag">Pro</span></span>
+            </label>
+            <div class="multi-target-input" id="multi-target-input">
+              <textarea id="multi-target-list" placeholder="Enter one target per line:&#10;John Smith&#10;Jane Doe&#10;Acme Corporation&#10;..." rows="5"></textarea>
+              <p class="multi-target-hint">Each line = one target. Max 50 targets per batch.</p>
+              <p class="target-count" id="target-count">0 targets detected</p>
+            </div>
+          </div>
         </section>
 
         <section class="form-section">
@@ -109,6 +138,53 @@
             <input type="date" id="date-start">
             <label for="date-end">End Date:</label>
             <input type="date" id="date-end">
+          </div>
+        </section>
+
+        <!-- Smart Prompt Composer -->
+        <section class="form-section prompt-composer" id="prompt-composer-section">
+          <h3>Prompt Style <span class="premium-tag">Pro</span></h3>
+          <p class="composer-hint">Customize how your prompt is structured</p>
+
+          <div class="slider-group">
+            <div class="slider-item">
+              <div class="slider-header">
+                <label for="depth-slider">Analysis Depth</label>
+                <span class="slider-value" id="depth-value">Standard</span>
+              </div>
+              <input type="range" id="depth-slider" min="1" max="3" value="2" class="styled-slider">
+              <div class="slider-labels">
+                <span>Brief</span>
+                <span>Standard</span>
+                <span>Comprehensive</span>
+              </div>
+            </div>
+
+            <div class="slider-item">
+              <div class="slider-header">
+                <label for="formality-slider">Formality</label>
+                <span class="slider-value" id="formality-value">Professional</span>
+              </div>
+              <input type="range" id="formality-slider" min="1" max="3" value="2" class="styled-slider">
+              <div class="slider-labels">
+                <span>Casual</span>
+                <span>Professional</span>
+                <span>Formal</span>
+              </div>
+            </div>
+
+            <div class="slider-item">
+              <div class="slider-header">
+                <label for="risk-slider">Risk Tolerance</label>
+                <span class="slider-value" id="risk-value">Balanced</span>
+              </div>
+              <input type="range" id="risk-slider" min="1" max="3" value="2" class="styled-slider">
+              <div class="slider-labels">
+                <span>Conservative</span>
+                <span>Balanced</span>
+                <span>Aggressive</span>
+              </div>
+            </div>
           </div>
         </section>
 
@@ -209,9 +285,18 @@
           </p>
         </section>
       </div>
+      <!-- Batch Navigation (hidden by default, shown in batch mode) -->
+      <div class="batch-navigation" id="batch-navigation" style="display: none;">
+        <button id="batch-prev-btn" class="btn btn-secondary btn-sm" disabled>← Previous</button>
+        <span id="batch-indicator" class="batch-indicator">1 / 1</span>
+        <button id="batch-next-btn" class="btn btn-secondary btn-sm">Next →</button>
+      </div>
+
       <div class="modal-footer">
         <button id="copy-clipboard-btn" class="btn btn-secondary">📋 Copy</button>
+        <button id="copy-all-batch-btn" class="btn btn-secondary" style="display: none;">📋 Copy All</button>
         <button id="export-markdown-btn" class="btn btn-secondary">📄 Export MD</button>
+        <button id="export-pdf-btn" class="btn btn-secondary">📑 Export PDF</button>
         <button id="save-template-btn" class="btn btn-secondary">💾 Save Template</button>
         <button class="modal-close btn btn-primary">Close</button>
       </div>
@@ -230,9 +315,19 @@
           <!-- Template list will be populated by JavaScript in T023 -->
         </div>
 
+        <!-- Share Code Section -->
+        <div class="template-share-section">
+          <h4>Share Template</h4>
+          <p class="share-hint">Import a template using a share code from a colleague:</p>
+          <div class="share-code-input">
+            <input type="text" id="share-code-input" placeholder="Paste share code (BS1-...)" maxlength="2000">
+            <button id="import-share-code-btn" class="btn btn-primary btn-sm">Import</button>
+          </div>
+        </div>
+
         <!-- Import/Export Section -->
         <div class="template-io-section">
-          <h4>Import / Export</h4>
+          <h4>Bulk Import / Export</h4>
           <div class="template-io-buttons">
             <button id="import-templates-btn" class="btn btn-secondary btn-sm">
               📥 Import JSON
@@ -367,6 +462,62 @@
       <div class="modal-footer">
         <button class="modal-close btn btn-secondary">Maybe Later</button>
         <button id="buy-license-btn" class="btn btn-primary">Buy License Key</button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Prompt History Modal -->
+  <dialog id="prompt-history-modal" aria-labelledby="prompt-history-title">
+    <div>
+      <div class="modal-header">
+        <h2 id="prompt-history-title">Prompt History</h2>
+        <button class="modal-close" aria-label="Close modal" title="Press ESC to close">&times;</button>
+      </div>
+      <div class="modal-content">
+        <p class="history-description">Your last 100 generated prompts. Click to view and reuse.</p>
+
+        <div class="history-search">
+          <input type="text" id="history-search-input" placeholder="Search by target or type..." maxlength="100">
+        </div>
+
+        <div class="history-list" id="history-list">
+          <!-- History entries populated by JavaScript -->
+          <p class="history-empty">No prompts generated yet.</p>
+        </div>
+
+        <div class="history-actions">
+          <button id="clear-history-btn" class="btn btn-danger btn-sm">Clear All History</button>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="modal-close btn btn-primary">Close</button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Audit Log Modal -->
+  <dialog id="audit-log-modal" aria-labelledby="audit-log-title">
+    <div>
+      <div class="modal-header">
+        <h2 id="audit-log-title">Activity Log</h2>
+        <button class="modal-close" aria-label="Close modal" title="Press ESC to close">&times;</button>
+      </div>
+      <div class="modal-content">
+        <p class="audit-log-description">Track your prompt generation activity. Last 100 entries stored locally.</p>
+
+        <div class="audit-log-actions">
+          <button id="export-audit-csv" class="btn btn-secondary btn-sm">Export CSV</button>
+          <button id="export-audit-json" class="btn btn-secondary btn-sm">Export JSON</button>
+          <button id="clear-audit-log" class="btn btn-danger btn-sm">Clear Log</button>
+        </div>
+
+        <div class="audit-log-list" id="audit-log-list">
+          <!-- Audit entries populated by JavaScript -->
+          <p class="audit-empty">No activity recorded yet.</p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="modal-close btn btn-primary">Close</button>
       </div>
     </div>
   </dialog>

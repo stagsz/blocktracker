@@ -1184,6 +1184,110 @@ WORD COUNT RULES: Count words only in Executive Summary, Background, Findings, A
       }
 
       /**
+       * Create a shareable link for a template
+       * Uses base64 encoding for compact representation
+       * @param {string} id - Template ID
+       * @param {Function} callback - (shareCode, error)
+       */
+      static createShareLink(id, callback) {
+        SavedTemplate.getAll((templates) => {
+          try {
+            const template = templates.find(t => t.id === id);
+            if (!template) {
+              callback(null, new Error('Template not found'));
+              return;
+            }
+
+            // Create compact share data
+            const shareData = {
+              v: 1, // version
+              n: template.name,
+              t: template.intelligenceTypeId,
+              a: template.selectedDiscoveryAreas,
+              c: template.customDiscoveryAreas || [],
+              s: template.targetSpecification || null
+            };
+
+            // Encode to base64
+            const jsonStr = JSON.stringify(shareData);
+            const base64 = btoa(unescape(encodeURIComponent(jsonStr)));
+            const shareCode = `BS1-${base64}`;
+
+            callback(shareCode, null);
+          } catch (error) {
+            callback(null, error);
+          }
+        });
+      }
+
+      /**
+       * Import a template from a share code
+       * @param {string} shareCode - The share code (BS1-...)
+       * @returns {{valid: boolean, template: Object|null, error: string|null}}
+       */
+      static parseShareCode(shareCode) {
+        try {
+          // Validate prefix
+          if (!shareCode || !shareCode.startsWith('BS1-')) {
+            return { valid: false, template: null, error: 'Invalid share code format' };
+          }
+
+          // Extract and decode base64
+          const base64 = shareCode.substring(4);
+          const jsonStr = decodeURIComponent(escape(atob(base64)));
+          const shareData = JSON.parse(jsonStr);
+
+          // Validate version
+          if (shareData.v !== 1) {
+            return { valid: false, template: null, error: 'Unsupported share code version' };
+          }
+
+          // Reconstruct template
+          const template = {
+            id: crypto.randomUUID(),
+            name: shareData.n || 'Imported Template',
+            intelligenceTypeId: shareData.t,
+            selectedDiscoveryAreas: shareData.a || [],
+            customDiscoveryAreas: shareData.c || [],
+            targetSpecification: shareData.s || null,
+            createdAt: new Date().toISOString()
+          };
+
+          // Validate required fields
+          if (!template.intelligenceTypeId) {
+            return { valid: false, template: null, error: 'Missing intelligence type in share code' };
+          }
+
+          return { valid: true, template, error: null };
+        } catch (error) {
+          return { valid: false, template: null, error: `Failed to parse share code: ${error.message}` };
+        }
+      }
+
+      /**
+       * Import a template from share code and save it
+       * @param {string} shareCode - The share code
+       * @param {Function} callback - (success, template|error)
+       */
+      static importFromShareCode(shareCode, callback) {
+        const result = SavedTemplate.parseShareCode(shareCode);
+
+        if (!result.valid) {
+          callback(false, result.error);
+          return;
+        }
+
+        const template = new SavedTemplate(result.template);
+        SavedTemplate.save(template, (success, error) => {
+          if (success) {
+            callback(true, template);
+          } else {
+            callback(false, error);
+          }
+        });
+      }
+
+      /**
        * Validate imported JSON data
        * @param {Object} data - Parsed JSON data
        * @returns {{valid: boolean, errors: string[], templates: Array}}
@@ -1301,12 +1405,207 @@ WORD COUNT RULES: Count words only in Executive Summary, Background, Findings, A
       }
     }
 
+    // PromptHistory class - stores generated prompts for quick access
+    class PromptHistory {
+      static STORAGE_KEY = 'brightscope_prompt_history';
+      static MAX_ENTRIES = 100;
+
+      constructor({ id, timestamp, targetName, intelligenceType, content, characterCount, promptStyle }) {
+        this.id = id || crypto.randomUUID();
+        this.timestamp = timestamp || new Date().toISOString();
+        this.targetName = targetName;
+        this.intelligenceType = intelligenceType;
+        this.content = content;
+        this.characterCount = characterCount || content?.length || 0;
+        this.promptStyle = promptStyle || null;
+      }
+
+      toJSON() {
+        return {
+          id: this.id,
+          timestamp: this.timestamp,
+          targetName: this.targetName,
+          intelligenceType: this.intelligenceType,
+          content: this.content,
+          characterCount: this.characterCount,
+          promptStyle: this.promptStyle
+        };
+      }
+
+      // Add a new prompt to history
+      static add(entry, callback = () => {}) {
+        const historyEntry = new PromptHistory(entry);
+
+        chrome.storage.local.get([PromptHistory.STORAGE_KEY], (result) => {
+          let history = result[PromptHistory.STORAGE_KEY] || [];
+
+          // Add new entry at the beginning
+          history.unshift(historyEntry.toJSON());
+
+          // Trim to max entries
+          if (history.length > PromptHistory.MAX_ENTRIES) {
+            history = history.slice(0, PromptHistory.MAX_ENTRIES);
+          }
+
+          chrome.storage.local.set({ [PromptHistory.STORAGE_KEY]: history }, () => {
+            callback(historyEntry);
+          });
+        });
+      }
+
+      // Get all history
+      static getAll(callback) {
+        chrome.storage.local.get([PromptHistory.STORAGE_KEY], (result) => {
+          callback(result[PromptHistory.STORAGE_KEY] || []);
+        });
+      }
+
+      // Get a specific entry by ID
+      static getById(id, callback) {
+        PromptHistory.getAll((history) => {
+          const entry = history.find(h => h.id === id);
+          callback(entry || null);
+        });
+      }
+
+      // Delete a specific entry
+      static delete(id, callback = () => {}) {
+        chrome.storage.local.get([PromptHistory.STORAGE_KEY], (result) => {
+          let history = result[PromptHistory.STORAGE_KEY] || [];
+          history = history.filter(h => h.id !== id);
+          chrome.storage.local.set({ [PromptHistory.STORAGE_KEY]: history }, () => {
+            callback(true);
+          });
+        });
+      }
+
+      // Clear all history
+      static clear(callback = () => {}) {
+        chrome.storage.local.remove([PromptHistory.STORAGE_KEY], callback);
+      }
+
+      // Search history by target name
+      static search(query, callback) {
+        PromptHistory.getAll((history) => {
+          const lowerQuery = query.toLowerCase();
+          const results = history.filter(h =>
+            h.targetName?.toLowerCase().includes(lowerQuery) ||
+            h.intelligenceType?.toLowerCase().includes(lowerQuery)
+          );
+          callback(results);
+        });
+      }
+    }
+
+    // AuditLog class - tracks prompt generation activity
+    class AuditLog {
+      static STORAGE_KEY = 'brightscope_audit_log';
+      static MAX_ENTRIES = 100;
+
+      constructor({ id, timestamp, action, intelligenceType, targetName, targetCount, discoveryAreas, promptStyle, characterCount }) {
+        this.id = id || crypto.randomUUID();
+        this.timestamp = timestamp || new Date().toISOString();
+        this.action = action; // 'generate', 'batch_generate', 'export_md', 'export_pdf', 'copy'
+        this.intelligenceType = intelligenceType;
+        this.targetName = targetName;
+        this.targetCount = targetCount || 1;
+        this.discoveryAreas = discoveryAreas || [];
+        this.promptStyle = promptStyle || null;
+        this.characterCount = characterCount || 0;
+      }
+
+      toJSON() {
+        return {
+          id: this.id,
+          timestamp: this.timestamp,
+          action: this.action,
+          intelligenceType: this.intelligenceType,
+          targetName: this.targetName,
+          targetCount: this.targetCount,
+          discoveryAreas: this.discoveryAreas,
+          promptStyle: this.promptStyle,
+          characterCount: this.characterCount
+        };
+      }
+
+      // Log a new entry
+      static log(entry, callback = () => {}) {
+        const auditEntry = new AuditLog(entry);
+
+        chrome.storage.local.get([AuditLog.STORAGE_KEY], (result) => {
+          let logs = result[AuditLog.STORAGE_KEY] || [];
+
+          // Add new entry at the beginning
+          logs.unshift(auditEntry.toJSON());
+
+          // Trim to max entries
+          if (logs.length > AuditLog.MAX_ENTRIES) {
+            logs = logs.slice(0, AuditLog.MAX_ENTRIES);
+          }
+
+          chrome.storage.local.set({ [AuditLog.STORAGE_KEY]: logs }, () => {
+            callback(auditEntry);
+          });
+        });
+      }
+
+      // Get all logs
+      static getAll(callback) {
+        chrome.storage.local.get([AuditLog.STORAGE_KEY], (result) => {
+          callback(result[AuditLog.STORAGE_KEY] || []);
+        });
+      }
+
+      // Clear all logs
+      static clear(callback = () => {}) {
+        chrome.storage.local.remove([AuditLog.STORAGE_KEY], callback);
+      }
+
+      // Export logs as CSV
+      static exportCSV(callback) {
+        AuditLog.getAll((logs) => {
+          if (logs.length === 0) {
+            callback(null, 'No audit logs to export');
+            return;
+          }
+
+          const headers = ['Timestamp', 'Action', 'Intelligence Type', 'Target', 'Target Count', 'Discovery Areas', 'Depth', 'Formality', 'Risk', 'Characters'];
+          const rows = logs.map(log => [
+            log.timestamp,
+            log.action,
+            log.intelligenceType || '',
+            log.targetName || '',
+            log.targetCount || 1,
+            (log.discoveryAreas || []).join('; '),
+            log.promptStyle?.depth || '',
+            log.promptStyle?.formality || '',
+            log.promptStyle?.risk || '',
+            log.characterCount || ''
+          ]);
+
+          const csv = [headers, ...rows]
+            .map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(','))
+            .join('\n');
+
+          callback(csv);
+        });
+      }
+
+      // Export logs as JSON
+      static exportJSON(callback) {
+        AuditLog.getAll((logs) => {
+          callback(JSON.stringify(logs, null, 2));
+        });
+      }
+    }
+
     // T011: GeneratedPrompt class
     class GeneratedPrompt {
-      constructor({ intelligenceType, discoveryAreas, targetSpecification }) {
+      constructor({ intelligenceType, discoveryAreas, targetSpecification, promptStyle }) {
         this.intelligenceType = intelligenceType;
         this.discoveryAreas = discoveryAreas || [];
         this.targetSpecification = targetSpecification;
+        this.promptStyle = promptStyle || { depth: 2, formality: 2, risk: 2 };
         this.content = '';
         this.characterCount = 0;
         this.wasTruncated = false;
@@ -1319,6 +1618,12 @@ WORD COUNT RULES: Count words only in Executive Summary, Background, Findings, A
         // Replace variables
         prompt = this.replaceVariables(prompt);
 
+        // Add style modifiers if not default
+        const styleInstructions = this.generateStyleInstructions();
+        if (styleInstructions) {
+          prompt = prompt + '\n\n---\n\n## Style & Approach Guidelines\n\n' + styleInstructions;
+        }
+
         // Check length and truncate if needed
         if (prompt.length > 8000) {
           prompt = this.truncate(prompt);
@@ -1329,6 +1634,43 @@ WORD COUNT RULES: Count words only in Executive Summary, Background, Findings, A
         this.characterCount = prompt.length;
 
         return this.content;
+      }
+
+      generateStyleInstructions() {
+        const instructions = [];
+        const { depth, formality, risk } = this.promptStyle;
+
+        // Only add instructions for non-default settings or if any are non-default
+        const isCustomized = depth !== 2 || formality !== 2 || risk !== 2;
+        if (!isCustomized) return '';
+
+        // Depth instructions
+        if (depth !== 2) {
+          const depthMod = PROMPT_STYLE_MODIFIERS.depth[depth];
+          instructions.push(`### Analysis Depth: ${PROMPT_STYLE_LABELS.depth[depth - 1]}`);
+          instructions.push(`- ${depthMod.instruction}`);
+          if (depthMod.wordLimit) instructions.push(`- ${depthMod.wordLimit}`);
+          if (depthMod.sections) instructions.push(`- ${depthMod.sections}`);
+        }
+
+        // Formality instructions
+        if (formality !== 2) {
+          const formalityMod = PROMPT_STYLE_MODIFIERS.formality[formality];
+          instructions.push(`### Tone: ${PROMPT_STYLE_LABELS.formality[formality - 1]}`);
+          instructions.push(`- ${formalityMod.tone}`);
+          instructions.push(`- ${formalityMod.format}`);
+        }
+
+        // Risk tolerance instructions
+        if (risk !== 2) {
+          const riskMod = PROMPT_STYLE_MODIFIERS.risk[risk];
+          instructions.push(`### Risk Approach: ${PROMPT_STYLE_LABELS.risk[risk - 1]}`);
+          instructions.push(`- ${riskMod.approach}`);
+          instructions.push(`- ${riskMod.sources}`);
+          instructions.push(`- ${riskMod.caveats}`);
+        }
+
+        return instructions.join('\n');
       }
 
       replaceVariables(template) {
@@ -1638,7 +1980,75 @@ WORD COUNT RULES: Count words only in Executive Summary, Background, Findings, A
       selectedTypeId: null,
       selectedDiscoveryAreaIds: [],
       customDiscoveryAreas: [],
-      targetSpec: null
+      targetSpec: null,
+      promptStyle: {
+        depth: 2,      // 1=Brief, 2=Standard, 3=Comprehensive
+        formality: 2,  // 1=Casual, 2=Professional, 3=Formal
+        risk: 2        // 1=Conservative, 2=Balanced, 3=Aggressive
+      },
+      multiTarget: {
+        enabled: false,
+        targets: []
+      }
+    };
+
+    // Prompt style labels
+    const PROMPT_STYLE_LABELS = {
+      depth: ['Brief', 'Standard', 'Comprehensive'],
+      formality: ['Casual', 'Professional', 'Formal'],
+      risk: ['Conservative', 'Balanced', 'Aggressive']
+    };
+
+    // Prompt style modifiers for prompt generation
+    const PROMPT_STYLE_MODIFIERS = {
+      depth: {
+        1: { // Brief
+          instruction: 'Provide a concise, high-level overview focusing only on the most critical findings.',
+          wordLimit: 'Keep the report under 500 words.',
+          sections: 'Combine sections where possible for brevity.'
+        },
+        2: { // Standard
+          instruction: 'Provide a balanced analysis with sufficient detail for informed decision-making.',
+          wordLimit: '',
+          sections: ''
+        },
+        3: { // Comprehensive
+          instruction: 'Provide an exhaustive, in-depth analysis covering all possible angles and edge cases.',
+          wordLimit: 'Be thorough - length is not a concern.',
+          sections: 'Include sub-sections for each major finding.'
+        }
+      },
+      formality: {
+        1: { // Casual
+          tone: 'Use a conversational, accessible tone. Avoid jargon where possible.',
+          format: 'Bullet points and short paragraphs are preferred.'
+        },
+        2: { // Professional
+          tone: 'Maintain a professional, objective tone suitable for business contexts.',
+          format: 'Use standard report formatting with clear section headers.'
+        },
+        3: { // Formal
+          tone: 'Use formal language appropriate for executive briefings or legal contexts.',
+          format: 'Follow strict report structure with numbered sections and formal citations.'
+        }
+      },
+      risk: {
+        1: { // Conservative
+          approach: 'Focus only on verified, high-confidence information. Avoid speculation.',
+          sources: 'Prioritize official and authoritative sources only.',
+          caveats: 'Include explicit caveats for any uncertain information.'
+        },
+        2: { // Balanced
+          approach: 'Balance verified facts with reasonable inferences based on available data.',
+          sources: 'Use a mix of official and credible secondary sources.',
+          caveats: 'Note confidence levels for key findings.'
+        },
+        3: { // Aggressive
+          approach: 'Explore all available information including circumstantial evidence and patterns.',
+          sources: 'Cast a wide net across all available sources.',
+          caveats: 'Clearly label speculative analysis as such.'
+        }
+      }
     };
 
     // T014: Populate intelligence types grid
@@ -1859,12 +2269,88 @@ WORD COUNT RULES: Count words only in Executive Summary, Background, Findings, A
           selectedTypeId: null,
           selectedDiscoveryAreaIds: [],
           customDiscoveryAreas: [],
-          targetSpec: null
+          targetSpec: null,
+          promptStyle: { depth: 2, formality: 2, risk: 2 },
+          multiTarget: { enabled: false, targets: [] }
         };
+
+        // Reset sliders to default
+        document.getElementById('depth-slider').value = 2;
+        document.getElementById('formality-slider').value = 2;
+        document.getElementById('risk-slider').value = 2;
+        document.getElementById('depth-value').textContent = 'Standard';
+        document.getElementById('formality-value').textContent = 'Professional';
+        document.getElementById('risk-value').textContent = 'Balanced';
 
         populateIntelligenceTypes();
         document.getElementById('intelligence-setup-modal').showModal();
         document.getElementById('intelligence-next-btn').disabled = true;
+      });
+
+      // Prompt Style Slider Event Handlers
+      function updateSliderValue(sliderId, valueId, labels, stateKey) {
+        const slider = document.getElementById(sliderId);
+        const valueDisplay = document.getElementById(valueId);
+
+        slider.addEventListener('input', (e) => {
+          const value = parseInt(e.target.value);
+          valueDisplay.textContent = labels[value - 1];
+          appState.promptStyle[stateKey] = value;
+        });
+      }
+
+      updateSliderValue('depth-slider', 'depth-value', PROMPT_STYLE_LABELS.depth, 'depth');
+      updateSliderValue('formality-slider', 'formality-value', PROMPT_STYLE_LABELS.formality, 'formality');
+      updateSliderValue('risk-slider', 'risk-value', PROMPT_STYLE_LABELS.risk, 'risk');
+
+      // Check premium status for prompt composer and multi-target
+      chrome.storage.local.get(['isPremium'], (result) => {
+        const composer = document.getElementById('prompt-composer-section');
+        const multiTargetSection = document.getElementById('multi-target-section');
+
+        if (!result.isPremium) {
+          composer.classList.add('disabled');
+          multiTargetSection.style.opacity = '0.6';
+          document.getElementById('multi-target-toggle').disabled = true;
+        }
+      });
+
+      // Multi-target toggle handler
+      document.getElementById('multi-target-toggle').addEventListener('change', (e) => {
+        const multiTargetInput = document.getElementById('multi-target-input');
+        const singleTargetInput = document.getElementById('target-name-input');
+
+        if (e.target.checked) {
+          multiTargetInput.classList.add('visible');
+          singleTargetInput.disabled = true;
+          singleTargetInput.placeholder = 'Disabled in batch mode';
+          appState.multiTarget.enabled = true;
+        } else {
+          multiTargetInput.classList.remove('visible');
+          singleTargetInput.disabled = false;
+          singleTargetInput.placeholder = 'e.g., John Smith, Acme Corp, New York City';
+          appState.multiTarget.enabled = false;
+          appState.multiTarget.targets = [];
+        }
+      });
+
+      // Multi-target list input handler
+      document.getElementById('multi-target-list').addEventListener('input', (e) => {
+        const lines = e.target.value.split('\n').filter(line => line.trim().length > 0);
+        const count = Math.min(lines.length, 50);
+        appState.multiTarget.targets = lines.slice(0, 50).map(t => t.trim());
+
+        const countDisplay = document.getElementById('target-count');
+        if (count === 0) {
+          countDisplay.textContent = '0 targets detected';
+          countDisplay.style.color = '#6c757d';
+        } else if (count >= 50) {
+          countDisplay.textContent = `${count} targets (maximum reached)`;
+          countDisplay.style.color = '#dc3545';
+        } else {
+          countDisplay.textContent = `${count} target${count > 1 ? 's' : ''} detected`;
+          countDisplay.style.color = '#667eea';
+        }
       });
 
       // Intelligence type card selection
@@ -1971,6 +2457,17 @@ WORD COUNT RULES: Count words only in Executive Summary, Background, Findings, A
 
       // Generate Prompt button
       document.getElementById('generate-prompt-btn').addEventListener('click', () => {
+        // Check if batch mode is enabled
+        if (appState.multiTarget.enabled) {
+          if (appState.multiTarget.targets.length === 0) {
+            showNotification('Please enter at least one target');
+            return;
+          }
+          generateBatchPrompts();
+          return;
+        }
+
+        // Single target mode
         const targetName = document.getElementById('target-name-input').value.trim();
         if (!targetName) {
           showNotification('Please enter a target name');
@@ -2011,6 +2508,170 @@ WORD COUNT RULES: Count words only in Executive Summary, Background, Findings, A
         generateAndDisplayPrompt(); // T020
       });
 
+      // Batch prompt generation
+      function generateBatchPrompts() {
+        const targets = appState.multiTarget.targets;
+        const timeframeSelect = document.getElementById('timeframe-select').value;
+        let timeframe = { type: 'all', value: null };
+
+        if (timeframeSelect !== 'all' && timeframeSelect !== 'custom') {
+          timeframe = { type: 'relative', value: timeframeSelect };
+        } else if (timeframeSelect === 'custom') {
+          const start = document.getElementById('date-start').value;
+          const end = document.getElementById('date-end').value;
+          if (!start || !end) {
+            showNotification('Please select both start and end dates');
+            return;
+          }
+          timeframe = { type: 'custom', value: { start, end } };
+        }
+
+        // Generate all prompts
+        const intelligenceType = IntelligenceType.findById(appState.selectedTypeId);
+        const selectedAreas = appState.selectedDiscoveryAreaIds.map(id => {
+          const area = DiscoveryArea.findById(id);
+          return new DiscoveryArea(area);
+        });
+
+        appState.customDiscoveryAreas.forEach((name, index) => {
+          selectedAreas.push(new DiscoveryArea({
+            id: `custom-${Date.now()}-${index}`,
+            name,
+            description: 'Custom discovery area',
+            applicableTypes: [appState.selectedTypeId],
+            defaultEnabled: false,
+            isCustom: true
+          }));
+        });
+
+        const batchPrompts = targets.map(targetName => {
+          const targetSpec = new TargetSpecification({
+            targetName,
+            timeframe,
+            intelligenceTypeId: appState.selectedTypeId
+          });
+
+          const generatedPrompt = new GeneratedPrompt({
+            intelligenceType: new IntelligenceType(intelligenceType),
+            discoveryAreas: selectedAreas,
+            targetSpecification: targetSpec,
+            promptStyle: appState.promptStyle
+          });
+
+          return {
+            target: targetName,
+            content: generatedPrompt.generate(),
+            characterCount: generatedPrompt.characterCount
+          };
+        });
+
+        // Store batch prompts for sequential processing
+        appState.batchPrompts = batchPrompts;
+        appState.currentBatchIndex = 0;
+
+        // Log batch generation to audit trail
+        const intelligenceType = IntelligenceType.findById(appState.selectedTypeId);
+        const totalChars = batchPrompts.reduce((sum, p) => sum + p.characterCount, 0);
+        AuditLog.log({
+          action: 'batch_generate',
+          intelligenceType: intelligenceType?.name,
+          targetName: targets.join(', ').substring(0, 100) + (targets.join(', ').length > 100 ? '...' : ''),
+          targetCount: targets.length,
+          discoveryAreas: appState.selectedDiscoveryAreaIds,
+          promptStyle: appState.promptStyle,
+          characterCount: totalChars
+        });
+
+        // Show batch UI elements
+        document.getElementById('batch-navigation').style.display = 'flex';
+        document.getElementById('copy-all-batch-btn').style.display = 'inline-block';
+        document.getElementById('prompt-generated-modal').classList.add('batch-mode-active');
+
+        // Update batch indicator
+        updateBatchDisplay(0);
+
+        document.getElementById('discovery-config-modal').close();
+        document.getElementById('prompt-generated-modal').showModal();
+
+        showNotification(`Generated ${targets.length} prompts. Use navigation or "Copy All" to export.`);
+      }
+
+      // Update batch display for current index
+      function updateBatchDisplay(index) {
+        const batchPrompts = appState.batchPrompts;
+        if (!batchPrompts || batchPrompts.length === 0) return;
+
+        const current = batchPrompts[index];
+        const total = batchPrompts.length;
+
+        // Update prompt text
+        const header = `## Prompt ${index + 1} of ${total}: ${current.target}\n\n`;
+        document.getElementById('generated-prompt-text').value = header + current.content;
+
+        // Update character count
+        document.getElementById('character-count').textContent =
+          `Batch: ${total} prompts | Current: ${current.characterCount.toLocaleString()} chars`;
+
+        // Update indicator
+        document.getElementById('batch-indicator').textContent = `${index + 1} / ${total}`;
+
+        // Update button states
+        document.getElementById('batch-prev-btn').disabled = (index === 0);
+        document.getElementById('batch-next-btn').disabled = (index === total - 1);
+
+        document.getElementById('truncation-warning').style.display = 'none';
+      }
+
+      // Batch navigation: Previous
+      document.getElementById('batch-prev-btn').addEventListener('click', () => {
+        if (appState.currentBatchIndex > 0) {
+          appState.currentBatchIndex--;
+          updateBatchDisplay(appState.currentBatchIndex);
+        }
+      });
+
+      // Batch navigation: Next
+      document.getElementById('batch-next-btn').addEventListener('click', () => {
+        if (appState.currentBatchIndex < appState.batchPrompts.length - 1) {
+          appState.currentBatchIndex++;
+          updateBatchDisplay(appState.currentBatchIndex);
+        }
+      });
+
+      // Copy All Batch prompts
+      document.getElementById('copy-all-batch-btn').addEventListener('click', async () => {
+        const batchPrompts = appState.batchPrompts;
+        if (!batchPrompts || batchPrompts.length === 0) {
+          showNotification('No batch prompts to copy');
+          return;
+        }
+
+        // Combine all prompts with separators
+        const combined = batchPrompts.map((p, i) => {
+          return `${'='.repeat(60)}\n` +
+                 `PROMPT ${i + 1} of ${batchPrompts.length}: ${p.target}\n` +
+                 `${'='.repeat(60)}\n\n` +
+                 p.content;
+        }).join('\n\n\n');
+
+        try {
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            await navigator.clipboard.writeText(combined);
+          } else {
+            // Fallback
+            const textarea = document.createElement('textarea');
+            textarea.value = combined;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+          }
+          showNotification(`Copied all ${batchPrompts.length} prompts to clipboard!`);
+        } catch (error) {
+          showNotification('Failed to copy to clipboard');
+        }
+      });
+
       // T020: Prompt generation logic
       function generateAndDisplayPrompt() {
         const intelligenceType = IntelligenceType.findById(appState.selectedTypeId);
@@ -2036,10 +2697,37 @@ WORD COUNT RULES: Count words only in Executive Summary, Background, Findings, A
         const generatedPrompt = new GeneratedPrompt({
           intelligenceType: new IntelligenceType(intelligenceType),
           discoveryAreas: selectedAreas,
-          targetSpecification: appState.targetSpec
+          targetSpecification: appState.targetSpec,
+          promptStyle: appState.promptStyle
         });
 
         const content = generatedPrompt.generate();
+
+        // Log to audit trail
+        AuditLog.log({
+          action: 'generate',
+          intelligenceType: intelligenceType?.name,
+          targetName: appState.targetSpec?.targetName,
+          targetCount: 1,
+          discoveryAreas: selectedAreas.map(a => a.name),
+          promptStyle: appState.promptStyle,
+          characterCount: generatedPrompt.characterCount
+        });
+
+        // Save to prompt history
+        PromptHistory.add({
+          targetName: appState.targetSpec?.targetName,
+          intelligenceType: intelligenceType?.name,
+          content: content,
+          characterCount: generatedPrompt.characterCount,
+          promptStyle: appState.promptStyle
+        });
+
+        // Hide batch UI elements for single prompt
+        document.getElementById('batch-navigation').style.display = 'none';
+        document.getElementById('copy-all-batch-btn').style.display = 'none';
+        document.getElementById('prompt-generated-modal').classList.remove('batch-mode-active');
+        appState.batchPrompts = null;
 
         document.getElementById('generated-prompt-text').value = content;
         document.getElementById('character-count').textContent = `${generatedPrompt.characterCount.toLocaleString()} / 8,000 characters`;
@@ -2220,6 +2908,276 @@ ${prompt}
         showNotification('Report exported to Markdown!');
       });
 
+      // PDF Export - generates a print-friendly HTML page
+      document.getElementById('export-pdf-btn').addEventListener('click', () => {
+        const prompt = document.getElementById('generated-prompt-text').value;
+        const intelligenceType = IntelligenceType.findById(appState.selectedTypeId);
+        const timestamp = new Date().toLocaleString();
+        const targetName = appState.targetSpec?.targetName || 'Unknown Target';
+        const isBatch = appState.batchPrompts && appState.batchPrompts.length > 1;
+
+        // Convert markdown-style content to HTML
+        function markdownToHtml(text) {
+          return text
+            .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+            .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+            .replace(/^#### (.+)$/gm, '<h4>$1</h4>')
+            .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+            .replace(/\*(.+?)\*/g, '<em>$1</em>')
+            .replace(/^- (.+)$/gm, '<li>$1</li>')
+            .replace(/(<li>.*<\/li>\n?)+/g, '<ul>$&</ul>')
+            .replace(/^(\d+)\. (.+)$/gm, '<li>$2</li>')
+            .replace(/---/g, '<hr>')
+            .replace(/\n\n/g, '</p><p>')
+            .replace(/\n/g, '<br>');
+        }
+
+        // Generate content for all prompts if batch mode
+        let contentHtml = '';
+        if (isBatch) {
+          appState.batchPrompts.forEach((p, i) => {
+            contentHtml += `
+              <div class="prompt-section">
+                <h2>Target ${i + 1}: ${escapeHTML(p.target)}</h2>
+                <div class="prompt-content">${markdownToHtml(escapeHTML(p.content))}</div>
+                ${i < appState.batchPrompts.length - 1 ? '<div class="page-break"></div>' : ''}
+              </div>
+            `;
+          });
+        } else {
+          contentHtml = `<div class="prompt-content">${markdownToHtml(escapeHTML(prompt))}</div>`;
+        }
+
+        // Create print-friendly HTML document
+        const printHtml = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BrightScope Report - ${escapeHTML(targetName)}</title>
+  <style>
+    @page {
+      margin: 1in;
+      size: letter;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Georgia', 'Times New Roman', serif;
+      font-size: 11pt;
+      line-height: 1.6;
+      color: #1a1a1a;
+      max-width: 8.5in;
+      margin: 0 auto;
+      padding: 0.5in;
+      background: white;
+    }
+
+    .header {
+      border-bottom: 3px solid #667eea;
+      padding-bottom: 20px;
+      margin-bottom: 30px;
+    }
+
+    .logo {
+      font-size: 24pt;
+      font-weight: bold;
+      color: #667eea;
+      margin: 0;
+      letter-spacing: -0.5px;
+    }
+
+    .subtitle {
+      color: #666;
+      font-size: 10pt;
+      margin: 5px 0 0 0;
+    }
+
+    .meta-info {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      background: #f8f9fa;
+      padding: 15px 20px;
+      border-radius: 8px;
+      margin-bottom: 30px;
+      border-left: 4px solid #667eea;
+    }
+
+    .meta-item {
+      flex: 1;
+      min-width: 150px;
+    }
+
+    .meta-label {
+      font-size: 9pt;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin: 0;
+    }
+
+    .meta-value {
+      font-size: 12pt;
+      font-weight: 600;
+      color: #333;
+      margin: 3px 0 0 0;
+    }
+
+    h1, h2, h3, h4 {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      color: #333;
+      margin-top: 1.5em;
+      margin-bottom: 0.5em;
+    }
+
+    h1 { font-size: 20pt; border-bottom: 1px solid #ddd; padding-bottom: 10px; }
+    h2 { font-size: 16pt; color: #667eea; }
+    h3 { font-size: 13pt; }
+    h4 { font-size: 11pt; }
+
+    p {
+      margin: 0 0 1em 0;
+    }
+
+    ul, ol {
+      margin: 0.5em 0 1em 0;
+      padding-left: 1.5em;
+    }
+
+    li {
+      margin: 0.3em 0;
+    }
+
+    hr {
+      border: none;
+      border-top: 1px solid #ddd;
+      margin: 2em 0;
+    }
+
+    .prompt-content {
+      background: #fafafa;
+      padding: 20px;
+      border-radius: 8px;
+      border: 1px solid #e9ecef;
+    }
+
+    .prompt-section {
+      margin-bottom: 40px;
+    }
+
+    .footer {
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 1px solid #ddd;
+      font-size: 9pt;
+      color: #666;
+      text-align: center;
+    }
+
+    .page-break {
+      page-break-after: always;
+      margin: 30px 0;
+      border-top: 2px dashed #ddd;
+    }
+
+    .confidential {
+      color: #dc3545;
+      font-weight: bold;
+      font-size: 10pt;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    @media print {
+      body {
+        padding: 0;
+      }
+      .no-print {
+        display: none !important;
+      }
+      .page-break {
+        page-break-after: always;
+        border: none;
+        margin: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <p class="logo">BrightScope</p>
+    <p class="subtitle">Intelligence Research Platform</p>
+  </div>
+
+  <div class="meta-info">
+    <div class="meta-item">
+      <p class="meta-label">Report Type</p>
+      <p class="meta-value">${escapeHTML(intelligenceType?.name || 'Intelligence Report')}</p>
+    </div>
+    <div class="meta-item">
+      <p class="meta-label">Target</p>
+      <p class="meta-value">${escapeHTML(targetName)}</p>
+    </div>
+    <div class="meta-item">
+      <p class="meta-label">Generated</p>
+      <p class="meta-value">${timestamp}</p>
+    </div>
+    ${isBatch ? `
+    <div class="meta-item">
+      <p class="meta-label">Batch Size</p>
+      <p class="meta-value">${appState.batchPrompts.length} targets</p>
+    </div>
+    ` : ''}
+  </div>
+
+  <p class="confidential">CONFIDENTIAL - FOR AUTHORIZED USE ONLY</p>
+
+  ${contentHtml}
+
+  <div class="footer">
+    <p>Generated by BrightScope - Professional Intelligence Research Platform</p>
+    <p>This document contains investigation guidance. Verify all findings independently.</p>
+  </div>
+
+  <div class="no-print" style="text-align: center; margin: 40px 0; padding: 20px; background: #f0f0f0; border-radius: 8px;">
+    <p style="margin: 0 0 15px 0; font-weight: bold;">Print or Save as PDF</p>
+    <button onclick="window.print()" style="padding: 10px 30px; font-size: 14px; background: #667eea; color: white; border: none; border-radius: 6px; cursor: pointer;">
+      Print / Save as PDF
+    </button>
+    <p style="margin: 15px 0 0 0; font-size: 12px; color: #666;">
+      Press Ctrl+P (or Cmd+P on Mac) to open print dialog, then select "Save as PDF"
+    </p>
+  </div>
+</body>
+</html>`;
+
+        // Open in new tab
+        const printWindow = window.open('', '_blank');
+        if (printWindow) {
+          printWindow.document.write(printHtml);
+          printWindow.document.close();
+          showNotification('PDF report opened in new tab. Use Print → Save as PDF');
+        } else {
+          // Fallback: download as HTML
+          const blob = new Blob([printHtml], { type: 'text/html;charset=utf-8' });
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          const cleanTarget = targetName.replace(/[^a-z0-9]/gi, '-').toLowerCase().substring(0, 30);
+          link.download = `brightscope-${cleanTarget}-report.html`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          URL.revokeObjectURL(url);
+          showNotification('Report downloaded as HTML. Open and print to PDF.');
+        }
+      });
+
       // T022: Save template logic
       document.getElementById('save-template-btn').addEventListener('click', () => {
         document.getElementById('save-template-modal').showModal();
@@ -2285,6 +3243,13 @@ ${prompt}
               infoDiv.appendChild(nameStrong);
               infoDiv.appendChild(metaSmall);
 
+              // Share button
+              const shareBtn = document.createElement('button');
+              shareBtn.className = 'share-btn';
+              shareBtn.dataset.id = template.id;
+              shareBtn.title = 'Copy share code';
+              shareBtn.textContent = '🔗';
+
               const deleteBtn = document.createElement('button');
               deleteBtn.className = 'btn-delete';
               deleteBtn.dataset.id = template.id;
@@ -2296,12 +3261,18 @@ ${prompt}
                 document.getElementById('template-list-modal').close();
               });
 
+              shareBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                shareTemplate(template.id);
+              });
+
               deleteBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 deleteTemplate(template.id, template.name);
               });
 
               div.appendChild(infoDiv);
+              div.appendChild(shareBtn);
               div.appendChild(deleteBtn);
               container.appendChild(div);
             });
@@ -2394,6 +3365,46 @@ ${prompt}
           });
         });
       }
+
+      // Share template - generate and copy share code
+      function shareTemplate(id) {
+        SavedTemplate.createShareLink(id, async (shareCode, error) => {
+          if (error) {
+            showNotification('Failed to generate share code');
+            return;
+          }
+
+          try {
+            await navigator.clipboard.writeText(shareCode);
+            showNotification('Share code copied to clipboard!');
+          } catch (err) {
+            // Fallback: show the code in a prompt
+            prompt('Copy this share code:', shareCode);
+          }
+        });
+      }
+
+      // Import share code handler
+      document.getElementById('import-share-code-btn').addEventListener('click', () => {
+        const shareCode = document.getElementById('share-code-input').value.trim();
+
+        if (!shareCode) {
+          showNotification('Please enter a share code');
+          return;
+        }
+
+        SavedTemplate.importFromShareCode(shareCode, (success, result) => {
+          if (success) {
+            showNotification(`Template "${result.name}" imported successfully!`);
+            document.getElementById('share-code-input').value = '';
+            // Refresh the template list
+            document.getElementById('template-list-modal').close();
+            document.getElementById('load-template-btn').click();
+          } else {
+            showNotification(`Import failed: ${result}`);
+          }
+        });
+      });
 
       // Template Export - Export all templates as JSON
       document.getElementById('export-templates-btn').addEventListener('click', () => {
@@ -2557,15 +3568,175 @@ ${prompt}
         });
       });
 
-      // ESC key handler
+      // Keyboard shortcuts handler
       document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') {
-          const openModals = document.querySelectorAll('dialog[open]');
-          if (openModals.length > 0) {
-            openModals[openModals.length - 1].close();
+        const openModals = document.querySelectorAll('dialog[open]');
+        const hasOpenModal = openModals.length > 0;
+        const activeElement = document.activeElement;
+        const isTyping = activeElement.tagName === 'INPUT' ||
+                         activeElement.tagName === 'TEXTAREA' ||
+                         activeElement.isContentEditable;
+
+        // ESC - Close modal
+        if (e.key === 'Escape' && hasOpenModal) {
+          openModals[openModals.length - 1].close();
+          return;
+        }
+
+        // Shortcuts that work when not typing
+        if (!isTyping) {
+          // ? - Show keyboard shortcuts help
+          if (e.key === '?') {
+            e.preventDefault();
+            showKeyboardShortcutsHelp();
+            return;
+          }
+
+          // n - New prompt (when no modal open)
+          if (e.key === 'n' && !hasOpenModal) {
+            e.preventDefault();
+            document.getElementById('new-prompt-btn').click();
+            return;
+          }
+
+          // t - Load template (when no modal open)
+          if (e.key === 't' && !hasOpenModal) {
+            e.preventDefault();
+            document.getElementById('load-template-btn').click();
+            return;
+          }
+
+          // d - Toggle dark mode
+          if (e.key === 'd' && !hasOpenModal) {
+            e.preventDefault();
+            ThemeManager.toggle();
+            return;
+          }
+        }
+
+        // Ctrl/Cmd shortcuts
+        if (e.ctrlKey || e.metaKey) {
+          // Ctrl+Enter - Generate prompt (in discovery config modal)
+          if (e.key === 'Enter') {
+            const discoveryModal = document.getElementById('discovery-config-modal');
+            if (discoveryModal.open) {
+              e.preventDefault();
+              document.getElementById('generate-prompt-btn').click();
+              return;
+            }
+          }
+
+          // Ctrl+C - Copy (when prompt modal is open and not selecting text)
+          if (e.key === 'c' && !window.getSelection().toString()) {
+            const promptModal = document.getElementById('prompt-generated-modal');
+            if (promptModal.open) {
+              e.preventDefault();
+              document.getElementById('copy-clipboard-btn').click();
+              return;
+            }
+          }
+
+          // Ctrl+S - Save template (when prompt modal is open)
+          if (e.key === 's') {
+            const promptModal = document.getElementById('prompt-generated-modal');
+            if (promptModal.open) {
+              e.preventDefault();
+              document.getElementById('save-template-btn').click();
+              return;
+            }
+          }
+
+          // Ctrl+P - Export PDF (when prompt modal is open)
+          if (e.key === 'p') {
+            const promptModal = document.getElementById('prompt-generated-modal');
+            if (promptModal.open) {
+              e.preventDefault();
+              document.getElementById('export-pdf-btn').click();
+              return;
+            }
+          }
+        }
+
+        // Arrow key navigation for batch mode
+        const promptModal = document.getElementById('prompt-generated-modal');
+        if (promptModal.open && appState.batchPrompts && appState.batchPrompts.length > 1) {
+          if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+            e.preventDefault();
+            document.getElementById('batch-prev-btn').click();
+            return;
+          }
+          if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+            e.preventDefault();
+            document.getElementById('batch-next-btn').click();
+            return;
           }
         }
       });
+
+      // Keyboard shortcuts help modal
+      function showKeyboardShortcutsHelp() {
+        const shortcuts = [
+          { key: 'n', desc: 'New prompt' },
+          { key: 't', desc: 'Load template' },
+          { key: 'd', desc: 'Toggle dark mode' },
+          { key: 'Ctrl+Enter', desc: 'Generate prompt' },
+          { key: 'Ctrl+C', desc: 'Copy to clipboard' },
+          { key: 'Ctrl+S', desc: 'Save template' },
+          { key: 'Ctrl+P', desc: 'Export as PDF' },
+          { key: '← →', desc: 'Navigate batch prompts' },
+          { key: 'Esc', desc: 'Close modal' },
+          { key: '?', desc: 'Show this help' }
+        ];
+
+        const helpHtml = shortcuts.map(s =>
+          `<div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee;">
+            <kbd style="background: #f4f4f4; padding: 4px 10px; border-radius: 4px; font-family: monospace; font-size: 13px; border: 1px solid #ddd;">${s.key}</kbd>
+            <span style="color: #666;">${s.desc}</span>
+          </div>`
+        ).join('');
+
+        const overlay = document.createElement('div');
+        overlay.id = 'shortcuts-overlay';
+        overlay.style.cssText = `
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: rgba(0,0,0,0.5);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 100000;
+        `;
+        overlay.innerHTML = `
+          <div style="background: white; border-radius: 12px; padding: 24px; max-width: 320px; width: 90%; box-shadow: 0 10px 40px rgba(0,0,0,0.3);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+              <h3 style="margin: 0; color: #333;">Keyboard Shortcuts</h3>
+              <button id="close-shortcuts" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #999;">&times;</button>
+            </div>
+            ${helpHtml}
+            <p style="margin: 16px 0 0 0; font-size: 12px; color: #999; text-align: center;">
+              Press ? anytime to show this help
+            </p>
+          </div>
+        `;
+
+        document.body.appendChild(overlay);
+
+        // Close handlers
+        overlay.addEventListener('click', (e) => {
+          if (e.target === overlay || e.target.id === 'close-shortcuts') {
+            overlay.remove();
+          }
+        });
+        document.addEventListener('keydown', function closeOnEsc(e) {
+          if (e.key === 'Escape') {
+            overlay.remove();
+            document.removeEventListener('keydown', closeOnEsc);
+          }
+        });
+      }
 
       // Backdrop click handler (close on click outside)
       document.querySelectorAll('dialog').forEach(dialog => {
@@ -2598,4 +3769,298 @@ ${prompt}
           area.style.display = 'none';
         }, 300);
       }, 3000);
+    }
+
+    // Audit Log UI Handlers
+    document.addEventListener('DOMContentLoaded', () => {
+      // Open audit log modal
+      document.getElementById('view-audit-log-btn').addEventListener('click', () => {
+        refreshAuditLogDisplay();
+        document.getElementById('audit-log-modal').showModal();
+      });
+
+      // Export CSV
+      document.getElementById('export-audit-csv').addEventListener('click', () => {
+        AuditLog.exportCSV((csv, error) => {
+          if (error) {
+            showNotification(error);
+            return;
+          }
+          const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = `brightscope-audit-${new Date().toISOString().split('T')[0]}.csv`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          URL.revokeObjectURL(url);
+          showNotification('Audit log exported as CSV');
+        });
+      });
+
+      // Export JSON
+      document.getElementById('export-audit-json').addEventListener('click', () => {
+        AuditLog.exportJSON((json) => {
+          if (json === '[]') {
+            showNotification('No audit logs to export');
+            return;
+          }
+          const blob = new Blob([json], { type: 'application/json;charset=utf-8' });
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = `brightscope-audit-${new Date().toISOString().split('T')[0]}.json`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          URL.revokeObjectURL(url);
+          showNotification('Audit log exported as JSON');
+        });
+      });
+
+      // Clear log
+      document.getElementById('clear-audit-log').addEventListener('click', () => {
+        if (confirm('Clear all activity logs? This cannot be undone.')) {
+          AuditLog.clear(() => {
+            refreshAuditLogDisplay();
+            showNotification('Activity log cleared');
+          });
+        }
+      });
+    });
+
+    // Refresh the audit log display
+    function refreshAuditLogDisplay() {
+      const container = document.getElementById('audit-log-list');
+
+      AuditLog.getAll((logs) => {
+        if (logs.length === 0) {
+          container.innerHTML = '<p class="audit-empty">No activity recorded yet.</p>';
+          return;
+        }
+
+        const actionLabels = {
+          'generate': 'Prompt Generated',
+          'batch_generate': 'Batch Generated',
+          'copy': 'Copied to Clipboard',
+          'export_md': 'Exported as Markdown',
+          'export_pdf': 'Exported as PDF'
+        };
+
+        const actionIcons = {
+          'generate': { icon: '⚡', class: 'generate' },
+          'batch_generate': { icon: '📦', class: 'batch' },
+          'copy': { icon: '📋', class: 'copy' },
+          'export_md': { icon: '📄', class: 'export' },
+          'export_pdf': { icon: '📑', class: 'export' }
+        };
+
+        container.innerHTML = logs.map(log => {
+          const iconInfo = actionIcons[log.action] || { icon: '•', class: 'generate' };
+          const label = actionLabels[log.action] || log.action;
+          const date = new Date(log.timestamp);
+          const timeAgo = getTimeAgo(date);
+
+          return `
+            <div class="audit-entry">
+              <div class="audit-icon ${iconInfo.class}">${iconInfo.icon}</div>
+              <div class="audit-details">
+                <p class="audit-action">${escapeHTML(label)}</p>
+                <p class="audit-target">${escapeHTML(log.targetName || 'Unknown target')}${log.targetCount > 1 ? ` (+${log.targetCount - 1} more)` : ''}</p>
+                <p class="audit-meta">${escapeHTML(log.intelligenceType || '')} • ${log.characterCount?.toLocaleString() || 0} chars</p>
+              </div>
+              <span class="audit-time">${timeAgo}</span>
+            </div>
+          `;
+        }).join('');
+      });
+    }
+
+    // Helper to format relative time
+    function getTimeAgo(date) {
+      const now = new Date();
+      const seconds = Math.floor((now - date) / 1000);
+
+      if (seconds < 60) return 'Just now';
+      if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
+      if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
+      if (seconds < 604800) return `${Math.floor(seconds / 86400)}d ago`;
+
+      return date.toLocaleDateString();
+    }
+
+    // Dark Mode Handler
+    const ThemeManager = {
+      STORAGE_KEY: 'brightscope_theme',
+
+      init() {
+        // Load saved preference or detect system preference
+        chrome.storage.local.get([this.STORAGE_KEY], (result) => {
+          const savedTheme = result[this.STORAGE_KEY];
+
+          if (savedTheme) {
+            this.setTheme(savedTheme);
+          } else {
+            // Use system preference
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            // Don't set explicit theme, let CSS media query handle it
+            // But update button state
+            this.updateButtonState(prefersDark ? 'dark' : 'light');
+          }
+        });
+
+        // Listen for system preference changes
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+          // Only react if no explicit theme is set
+          chrome.storage.local.get([this.STORAGE_KEY], (result) => {
+            if (!result[this.STORAGE_KEY]) {
+              this.updateButtonState(e.matches ? 'dark' : 'light');
+            }
+          });
+        });
+
+        // Set up toggle button
+        document.getElementById('theme-toggle-btn').addEventListener('click', () => {
+          this.toggle();
+        });
+      },
+
+      setTheme(theme) {
+        document.documentElement.setAttribute('data-theme', theme);
+        chrome.storage.local.set({ [this.STORAGE_KEY]: theme });
+        this.updateButtonState(theme);
+      },
+
+      updateButtonState(theme) {
+        const btn = document.getElementById('theme-toggle-btn');
+        btn.setAttribute('data-current-theme', theme);
+        btn.title = theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode';
+      },
+
+      toggle() {
+        const current = document.documentElement.getAttribute('data-theme');
+        let newTheme;
+
+        if (current === 'dark') {
+          newTheme = 'light';
+        } else if (current === 'light') {
+          newTheme = 'dark';
+        } else {
+          // No explicit theme, detect current and toggle
+          const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          newTheme = prefersDark ? 'light' : 'dark';
+        }
+
+        this.setTheme(newTheme);
+      },
+
+      getTheme() {
+        return document.documentElement.getAttribute('data-theme') ||
+               (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      }
+    };
+
+    // Initialize theme manager on DOM ready
+    document.addEventListener('DOMContentLoaded', () => {
+      ThemeManager.init();
+    });
+
+    // Prompt History UI Handlers
+    document.addEventListener('DOMContentLoaded', () => {
+      // Open history modal
+      document.getElementById('view-history-btn').addEventListener('click', () => {
+        refreshHistoryDisplay();
+        document.getElementById('prompt-history-modal').showModal();
+      });
+
+      // Search history
+      document.getElementById('history-search-input').addEventListener('input', (e) => {
+        const query = e.target.value.trim();
+        if (query.length === 0) {
+          refreshHistoryDisplay();
+        } else {
+          PromptHistory.search(query, (results) => {
+            renderHistoryList(results);
+          });
+        }
+      });
+
+      // Clear history
+      document.getElementById('clear-history-btn').addEventListener('click', () => {
+        if (confirm('Clear all prompt history? This cannot be undone.')) {
+          PromptHistory.clear(() => {
+            refreshHistoryDisplay();
+            showNotification('Prompt history cleared');
+          });
+        }
+      });
+    });
+
+    // Refresh history display
+    function refreshHistoryDisplay() {
+      document.getElementById('history-search-input').value = '';
+      PromptHistory.getAll((history) => {
+        renderHistoryList(history);
+      });
+    }
+
+    // Render history list
+    function renderHistoryList(history) {
+      const container = document.getElementById('history-list');
+
+      if (history.length === 0) {
+        container.innerHTML = '<p class="history-empty">No prompts generated yet.</p>';
+        return;
+      }
+
+      container.innerHTML = history.map(entry => {
+        const date = new Date(entry.timestamp);
+        const timeAgo = getTimeAgo(date);
+        const preview = (entry.content || '').substring(0, 80).replace(/\n/g, ' ');
+
+        return `
+          <div class="history-entry" data-id="${entry.id}">
+            <div class="history-entry-header">
+              <p class="history-target">${escapeHTML(entry.targetName || 'Unknown Target')}</p>
+              <span class="history-time">${timeAgo}</span>
+            </div>
+            <p class="history-meta">${escapeHTML(entry.intelligenceType || 'Unknown Type')} • ${(entry.characterCount || 0).toLocaleString()} chars</p>
+            <p class="history-preview">${escapeHTML(preview)}...</p>
+          </div>
+        `;
+      }).join('');
+
+      // Add click handlers
+      container.querySelectorAll('.history-entry').forEach(el => {
+        el.addEventListener('click', () => {
+          const id = el.dataset.id;
+          loadPromptFromHistory(id);
+        });
+      });
+    }
+
+    // Load prompt from history
+    function loadPromptFromHistory(id) {
+      PromptHistory.getById(id, (entry) => {
+        if (!entry) {
+          showNotification('Prompt not found');
+          return;
+        }
+
+        // Close history modal
+        document.getElementById('prompt-history-modal').close();
+
+        // Show the prompt in the generated modal
+        document.getElementById('batch-navigation').style.display = 'none';
+        document.getElementById('copy-all-batch-btn').style.display = 'none';
+        document.getElementById('prompt-generated-modal').classList.remove('batch-mode-active');
+
+        document.getElementById('generated-prompt-text').value = entry.content;
+        document.getElementById('character-count').textContent = `${(entry.characterCount || 0).toLocaleString()} / 8,000 characters`;
+        document.getElementById('truncation-warning').style.display = 'none';
+
+        document.getElementById('prompt-generated-modal').showModal();
+        showNotification('Loaded prompt from history');
+      });
     }
