@@ -840,22 +840,7 @@
   "baseTemplate": {
     "name": "OSINT 4-Phase Intelligence Report Template",
     "description": "Professional OSINT methodology template for all 8 intelligence types",
-    "template": "# OSINT Intelligence Report: {INTELLIGENCE_TYPE}\n\n## Investigation Target\n**Subject**: {TARGET}\n**Timeframe**: {TIMEFRAME}\n**Analysis Type**: {INTELLIGENCE_TYPE}\n**Investigation Scope**: {DISCOVERY_AREAS}\n\n---\n\n## Phase 1: Discovery (Target Identification & Scoping)\n\nConduct comprehensive open-source research to identify and scope the investigation target. Focus on:\n\n{DISCOVERY_AREAS_DETAILED}\n\n**Objectives**:\n- Establish baseline understanding of the target\n- Identify key data sources and collection points\n- Define investigation boundaries and priorities\n\n---\n\n## Phase 2: Signals (Raw Data Collection)\n\nGather raw, unprocessed data from open sources. For each discovery area, collect:\n\n{DISCOVERY_AREAS_COLLECTION}\n\n**Collection Requirements**:\n{EVIDENCE_REQUIREMENTS}\n\n---\n\n## Phase 3: Insights (Analysis & Pattern Recognition)\n\nAnalyze collected data to identify patterns, connections, and significance. Provide:\n\n### Key Findings\n- **Finding 1**: [Description with confidence level: High/Medium/Low]\n- **Finding 2**: [Description with confidence level: High/Medium/Low]\n- **Finding 3**: [Description with confidence level: High/Medium/Low]\n\n### Pattern Analysis\n- Identify trends, anomalies, and correlations across data sources\n- Cross-reference information for validation and corroboration\n- Assess reliability and credibility of sources\n\n### Confidence Assessment\nFor each finding, assign:\n- **High Confidence**: Multiple credible sources, recent data, directly verified\n- **Medium Confidence**: Single credible source or older data, indirectly verified\n- **Low Confidence**: Unverified, single uncredible source, or speculative\n\n---\n\n## Phase 4: Receipts (Evidence Documentation)\n\nDocument all evidence with full attribution and verification status.\n\n### Evidence Log\n\nFor each piece of evidence, provide:\n\n1. **Source**: [URL, document name, or identifier]\n2. **Collection Timestamp**: [ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ]\n3. **Reliability Assessment**: [Verified/Likely/Unverified]\n4. **Corroboration Status**: [Confirmed by N sources / Standalone]\n5. **Content Summary**: [Brief description of what this evidence shows]\n\n---\n\n## Report Structure\n\n### Executive Summary\n(Minimum 500 words) Comprehensive overview of investigation, key findings, evidence summary, strategic analysis, and actionable recommendations.\n\n### Background\nContext and rationale for this intelligence investigation.\n\n### Findings\n(Organized by discovery area) Detailed results from each investigation dimension.\n\n### Analysis\nPatterns, insights, and intelligence value extracted from findings.\n\n### Recommendations\nActionable next steps based on intelligence gathered.\n\n### Sources\nComplete bibliography of all sources consulted.\n\n{REPORT_STRUCTURE_OVERRIDES}\n\n---\n\n## Quality Standards\n\n- **Factual Accuracy**: ≥90% of claims must be evidence-based\n- **Source Attribution**: Every claim must cite at least one source\n- **Confidence Scoring**: All assessments include High/Medium/Low confidence\n- **Structured Format**: Follow Background → Findings → Analysis → Recommendations\n- **Professional Tone**: Enterprise intelligence quality, objective and analytical\n\n---\n\n## Research Links & References
-(NOTE: This section does NOT count toward the 500-word minimum for Executive Summary)
-
-**Investigation Focus Areas with Reference Links:**
-{DISCOVERY_AREAS_LINKS}
-
----
-
-Generate a comprehensive OSINT intelligence report following this methodology with the following CRITICAL requirements:
-
-1. Executive Summary: MINIMUM 500 words (links section excluded from count)
-2. Ensure all evidence is properly attributed
-3. Include confidence levels in all analytical conclusions
-4. Add the Research Links section at the very end with links from each discovery area
-
-WORD COUNT RULES: Count words only in Executive Summary, Background, Findings, Analysis, and Recommendations sections. Links & References section does NOT count toward any minimum word requirements.\n"
+    "template": "# OSINT Intelligence Report: {INTELLIGENCE_TYPE}\n\n## Investigation Target\n**Subject**: {TARGET}\n**Timeframe**: {TIMEFRAME}\n**Analysis Type**: {INTELLIGENCE_TYPE}\n**Investigation Scope**: {DISCOVERY_AREAS}\n\n---\n\n## Phase 1: Discovery (Target Identification & Scoping)\n\nConduct comprehensive open-source research to identify and scope the investigation target. Focus on:\n\n{DISCOVERY_AREAS_DETAILED}\n\n**Objectives**:\n- Establish baseline understanding of the target\n- Identify key data sources and collection points\n- Define investigation boundaries and priorities\n\n---\n\n## Phase 2: Signals (Raw Data Collection)\n\nGather raw, unprocessed data from open sources. For each discovery area, collect:\n\n{DISCOVERY_AREAS_COLLECTION}\n\n**Collection Requirements**:\n{EVIDENCE_REQUIREMENTS}\n\n---\n\n## Phase 3: Insights (Analysis & Pattern Recognition)\n\nAnalyze collected data to identify patterns, connections, and significance. Provide:\n\n### Key Findings\n- **Finding 1**: [Description with confidence level: High/Medium/Low]\n- **Finding 2**: [Description with confidence level: High/Medium/Low]\n- **Finding 3**: [Description with confidence level: High/Medium/Low]\n\n### Pattern Analysis\n- Identify trends, anomalies, and correlations across data sources\n- Cross-reference information for validation and corroboration\n- Assess reliability and credibility of sources\n\n### Confidence Assessment\nFor each finding, assign:\n- **High Confidence**: Multiple credible sources, recent data, directly verified\n- **Medium Confidence**: Single credible source or older data, indirectly verified\n- **Low Confidence**: Unverified, single uncredible source, or speculative\n\n---\n\n## Phase 4: Receipts (Evidence Documentation)\n\nDocument all evidence with full attribution and verification status.\n\n### Evidence Log\n\nFor each piece of evidence, provide:\n\n1. **Source**: [URL, document name, or identifier]\n2. **Collection Timestamp**: [ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ]\n3. **Reliability Assessment**: [Verified/Likely/Unverified]\n4. **Corroboration Status**: [Confirmed by N sources / Standalone]\n5. **Content Summary**: [Brief description of what this evidence shows]\n\n---\n\n## Report Structure\n\n### Executive Summary\n(Minimum 500 words) Comprehensive overview of investigation, key findings, evidence summary, strategic analysis, and actionable recommendations.\n\n### Background\nContext and rationale for this intelligence investigation.\n\n### Findings\n(Organized by discovery area) Detailed results from each investigation dimension.\n\n### Analysis\nPatterns, insights, and intelligence value extracted from findings.\n\n### Recommendations\nActionable next steps based on intelligence gathered.\n\n### Sources\nComplete bibliography of all sources consulted.\n\n{REPORT_STRUCTURE_OVERRIDES}\n\n---\n\n## Quality Standards\n\n- **Factual Accuracy**: ≥90% of claims must be evidence-based\n- **Source Attribution**: Every claim must cite at least one source\n- **Confidence Scoring**: All assessments include High/Medium/Low confidence\n- **Structured Format**: Follow Background → Findings → Analysis → Recommendations\n- **Professional Tone**: Enterprise intelligence quality, objective and analytical\n\n---\n\n## Research Links & References\n(NOTE: This section does NOT count toward the 500-word minimum for Executive Summary)\n\n**Investigation Focus Areas with Reference Links:**\n{DISCOVERY_AREAS_LINKS}\n\n---\n\nGenerate a comprehensive OSINT intelligence report following this methodology with the following CRITICAL requirements:\n\n1. Executive Summary: MINIMUM 500 words (links section excluded from count)\n2. Ensure all evidence is properly attributed\n3. Include confidence levels in all analytical conclusions\n4. Add the Research Links section at the very end with links from each discovery area\n\nWORD COUNT RULES: Count words only in Executive Summary, Background, Findings, Analysis, and Recommendations sections. Links & References section does NOT count toward any minimum word requirements."
   },
   "evidenceRequirements": {
     "sourceURL": "Provide full URL or document identifier for every piece of information",
@@ -1779,6 +1764,23 @@ WORD COUNT RULES: Count words only in Executive Summary, Background, Findings, A
     }
 
     /**
+     * Utility Functions
+     */
+
+    // HTML Escape - XSS Prevention
+    function escapeHTML(str) {
+      if (str === null || str === undefined) return '';
+      const escapeMap = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+      };
+      return String(str).replace(/[&<>"']/g, char => escapeMap[char]);
+    }
+
+    /**
      * Contract Test Suite - TDD Approach
      * These tests validate the embedded JSON data contracts
      * They MUST be run before implementing models (T007-T011)
@@ -2527,7 +2529,7 @@ WORD COUNT RULES: Count words only in Executive Summary, Background, Findings, A
         }
 
         // Generate all prompts
-        const intelligenceType = IntelligenceType.findById(appState.selectedTypeId);
+        const intelligenceTypeObj = IntelligenceType.findById(appState.selectedTypeId);
         const selectedAreas = appState.selectedDiscoveryAreaIds.map(id => {
           const area = DiscoveryArea.findById(id);
           return new DiscoveryArea(area);
@@ -2552,7 +2554,7 @@ WORD COUNT RULES: Count words only in Executive Summary, Background, Findings, A
           });
 
           const generatedPrompt = new GeneratedPrompt({
-            intelligenceType: new IntelligenceType(intelligenceType),
+            intelligenceType: new IntelligenceType(intelligenceTypeObj),
             discoveryAreas: selectedAreas,
             targetSpecification: targetSpec,
             promptStyle: appState.promptStyle
@@ -2570,10 +2572,11 @@ WORD COUNT RULES: Count words only in Executive Summary, Background, Findings, A
         appState.currentBatchIndex = 0;
 
         // Log batch generation to audit trail
+        const intelligenceType = IntelligenceType.findById(appState.selectedTypeId);
         const totalChars = batchPrompts.reduce((sum, p) => sum + p.characterCount, 0);
         AuditLog.log({
           action: 'batch_generate',
-          intelligenceType: intelligenceType?.name,
+          intelligenceType: intelligenceTypeObj?.name,
           targetName: targets.join(', ').substring(0, 100) + (targets.join(', ').length > 100 ? '...' : ''),
           targetCount: targets.length,
           discoveryAreas: appState.selectedDiscoveryAreaIds,
