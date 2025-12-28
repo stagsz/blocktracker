@@ -2570,7 +2570,6 @@ WORD COUNT RULES: Count words only in Executive Summary, Background, Findings, A
         appState.currentBatchIndex = 0;
 
         // Log batch generation to audit trail
-        const intelligenceType = IntelligenceType.findById(appState.selectedTypeId);
         const totalChars = batchPrompts.reduce((sum, p) => sum + p.characterCount, 0);
         AuditLog.log({
           action: 'batch_generate',
